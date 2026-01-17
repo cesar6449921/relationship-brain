@@ -32,7 +32,8 @@ gcloud run deploy $SERVICE_NAME \
     --set-env-vars "EVOLUTION_URL=$EVOLUTION_URL" \
     --set-env-vars "EVOLUTION_API_KEY=$EVOLUTION_API_KEY" \
     --set-env-vars "GOOGLE_CLOUD_PROJECT=$PROJECT_ID" \
-    --set-env-vars "GOOGLE_CLOUD_LOCATION=$REGION"
+    --set-env-vars "GOOGLE_CLOUD_LOCATION=$REGION" \
+    --set-env-vars "INSTANCE_NAME=${INSTANCE_NAME:-test-bot-2}"
 
 echo "✅ Deployment complete!"
 gcloud run services describe $SERVICE_NAME --region $REGION --format 'value(status.url)'
