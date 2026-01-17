@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # --- Serviço 1: API do WhatsApp (Evolution) ---
+  evolution-api:
+    image: attotech/evolution-api:v2.1.1 # Versão v2 recomendada
+    container_name: evolution_api
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVER_PORT=8080
+      - AUTHENTICATION_API_KEY=${EVOLUTION_API_KEY}
+      
+      # Banco de Dados
+      - DATABASE_ENABLED=true
+      - DATABASE_PROVIDER=postgresql
+      - DATABASE_CONNECTION_URI=postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
+      - DATABASE_CLIENT_NAME=evolution_exchange
+      
+      # Desabilitando serviços pesados para economizar recurso na VM
+      - RABBITMQ_ENABLED=false
+      - CACHE_REDIS_ENABLED=false
+      
+      # WebSocket (Opcional, mas bom ter)
+      - WEBSOCKET_ENABLED=true
+    depends_on:
+      - postgres
+    volumes:
+      - evolution_instances:/evolution/instances
+      - evolution_store:/evolution/store
+    networks:
+      - relationship_net
+
+  # --- Serviço 2: Banco de Dados da Evolution ---
+  postgres:
+    image: postgres:15-alpine
+    container_name: evolution_postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      # Volume nomeado para persistir dados mesmo se atualizar o container
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - relationship_net
+
+  # --- Serviço 3: Cérebro do Bot (Seu Código) ---
+  bot-brain:
+    build: ./src
+    container_name: bot_brain
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - EVOLUTION_URL=http://evolution-api:8080
+      - EVOLUTION_API_KEY=${EVOLUTION_API_KEY}
+    networks:
+      - relationship_net
+
+volumes:
+  postgres_data:
+  evolution_instances:
+  evolution_store:
+
+networks:
+  relationship_net:
+    driver: bridge
