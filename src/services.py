@@ -1,8 +1,6 @@
 import os
-import json
 import httpx
-import vertexai
-from vertexai.generative_models import GenerativeModel
+import google.generativeai as genai
 from tenacity import (
     retry,
     stop_after_attempt,
@@ -10,7 +8,6 @@ from tenacity import (
     retry_if_exception_type,
 )
 from logging_config import get_logger
-from google.oauth2 import service_account
 
 logger = get_logger(__name__)
 
@@ -19,29 +16,11 @@ EVOLUTION_URL = os.getenv("EVOLUTION_URL", "http://evolution-api:8080")
 EVOLUTION_API_KEY = os.getenv("EVOLUTION_API_KEY")
 INSTANCE_NAME = os.getenv("INSTANCE_NAME", "casal_bot")
 
-# --- Configurações Vertex AI ---
-PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT")
-LOCATION = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
-MODEL_NAME = os.getenv("MODEL_NAME", "gemini-1.5-flash-001")
+# --- Configurações Google GenAI (Studio) ---
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") # Chave AIza...
+genai.configure(api_key=GOOGLE_API_KEY)
 
-# Autenticação Vertex AI
-try:
-    creds_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
-    if creds_json:
-        try:
-            info = json.loads(creds_json)
-            credentials = service_account.Credentials.from_service_account_info(info)
-            vertexai.init(project=PROJECT_ID, location=LOCATION, credentials=credentials)
-            logger.info("vertex_ai_initialized_with_json", project=PROJECT_ID)
-        except json.JSONDecodeError:
-            logger.error("vertex_ai_creds_error", error="Invalid JSON in credentials env var")
-    else:
-        # Tenta autenticação padrão (ADC)
-        vertexai.init(project=PROJECT_ID, location=LOCATION)
-        logger.info("vertex_ai_initialized_adc", project=PROJECT_ID)
-except Exception as e:
-    logger.error("vertex_ai_init_fatal_error", error=str(e))
-
+# Configuração do Modelo
 SYSTEM_PROMPT = """
 Você é um Terapeuta de Casais e Especialista em Comportamento Humano com vasta experiência.
 Seu nome é "NósDois AI". Você está em um chat de WhatsApp ajudando um casal (ou uma pessoa sobre seu relacionamento).
@@ -66,9 +45,10 @@ DIRETRIZES DE RESPOSTA:
 Se o usuário estiver muito irritado, ajude a acalmar. Se estiver triste, acolha. Se pedir ideia de encontro, seja criativo e romântico.
 """
 
-model = GenerativeModel(
-    MODEL_NAME,
-    system_instruction=[SYSTEM_PROMPT]
+# Modelo GenAI Studio (Funciona com AIza Key)
+model = genai.GenerativeModel(
+    "gemini-1.5-flash",
+    system_instruction=SYSTEM_PROMPT
 )
 
 @retry(
@@ -77,32 +57,26 @@ model = GenerativeModel(
     reraise=True,
 )
 def generate_ai_content(user_text: str, user_name: str):
-    return model.generate_content(
-        f"{user_name} disse: {user_text}",
-        generation_config={
-            "max_output_tokens": 600,
-            "temperature": 0.7,
-            "top_p": 0.9
-        }
-    )
+    # GenAI Studio API
+    return model.generate_content(f"{user_name} disse: {user_text}")
 
 def process_message(user_text: str, user_name: str) -> str:
     log = logger.bind(user_name=user_name)
     try:
-        log.info("calling_vertex_ai", model=MODEL_NAME)
+        log.info("calling_genai_studio", model="gemini-1.5-flash")
         response = generate_ai_content(user_text, user_name)
         
         try:
             if response.text:
                 return response.text
         except ValueError:
-            log.warning("vertex_safety_block")
+            log.warning("genai_safety_block", safety=response.prompt_feedback)
             return "Hmm, sinto que estamos entrando em um terreno delicado que meus filtros de segurança bloquearam. Vamos tentar refrasear? 🌿"
 
         return "Fiquei pensativo e sem palavras. Pode repetir? 🤔"
 
     except Exception as e:
-        log.error("vertex_ai_failed", error=str(e))
+        log.error("genai_failed", error=str(e))
         return "Minha intuição falhou por um instante (erro técnico). Tente novamente em alguns segundos! 🧠✨"
 
 @retry(
