@@ -85,7 +85,7 @@ async def process_webhook_task(data: dict):
             log.info("processing_message", text_length=len(user_text))
 
             # 1. Processar com IA
-            ai_response = process_message(user_text, push_name)
+            ai_response = await process_message(user_text, push_name)
 
             # 2. Enviar resposta
             await send_text(remote_jid, ai_response)
