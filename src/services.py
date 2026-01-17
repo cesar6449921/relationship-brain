@@ -1,6 +1,5 @@
 import os
 import httpx
-import google.generativeai as genai
 from tenacity import (
     retry,
     stop_after_attempt,
@@ -8,6 +7,13 @@ from tenacity import (
     retry_if_exception_type,
 )
 from logging_config import get_logger
+
+# --- HACK: Forçar GenAI a ignorar credenciais do GCP/ADC ---
+# Remove variáveis que ativam a autenticação automática do Google Cloud
+for key in ["GOOGLE_APPLICATION_CREDENTIALS", "GOOGLE_CLOUD_PROJECT", "GCLOUD_PROJECT"]:
+    os.environ.pop(key, None)
+
+import google.generativeai as genai
 
 logger = get_logger(__name__)
 
@@ -17,13 +23,11 @@ EVOLUTION_API_KEY = os.getenv("EVOLUTION_API_KEY")
 INSTANCE_NAME = os.getenv("INSTANCE_NAME", "test-bot-2")
 
 # --- Configurações Google GenAI (Studio) ---
-# Força o uso da API KEY ignorando ADC
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
 
 if not GOOGLE_API_KEY:
     logger.error("api_key_missing", msg="GOOGLE_API_KEY not found in env")
 else:
-    # Configuração global explícita
     genai.configure(api_key=GOOGLE_API_KEY)
     logger.info("genai_configured_explicitly")
 
@@ -33,7 +37,6 @@ Seu objetivo é ajudar na comunicação, sugerir encontros e mediar conflitos le
 Seja conciso, empático e use emojis. 🌿❤️
 """
 
-# Usando gemini-1.5-flash
 model = genai.GenerativeModel(
     "gemini-1.5-flash",
     system_instruction=SYSTEM_PROMPT
@@ -45,8 +48,6 @@ model = genai.GenerativeModel(
     reraise=True,
 )
 def generate_ai_content(user_text: str, user_name: str):
-    # Passa a request_options para garantir que não tente usar credenciais do projeto GCP
-    # A lib google-generativeai usa a config global, mas vamos garantir
     return model.generate_content(f"{user_name} disse: {user_text}")
 
 def process_message(user_text: str, user_name: str) -> str:
@@ -71,8 +72,7 @@ def process_message(user_text: str, user_name: str) -> str:
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=2, max=10),
-    retry=retry_if_exception_type((httpx.ConnectError, httpx.TimeoutException)),
-    reraise=False,
+    reraise=True,
 )
 async def send_text(remote_jid: str, text: str):
     url = f"{EVOLUTION_URL}/message/sendText/{INSTANCE_NAME}"
