@@ -17,35 +17,31 @@ EVOLUTION_API_KEY = os.getenv("EVOLUTION_API_KEY")
 INSTANCE_NAME = os.getenv("INSTANCE_NAME", "casal_bot")
 
 # --- Configurações Google GenAI (Studio) ---
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") # Chave AIza...
+# A chave AIza... deve estar na variável GOOGLE_API_KEY no Easypanel
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 genai.configure(api_key=GOOGLE_API_KEY)
 
 # Configuração do Modelo
 SYSTEM_PROMPT = """
 Você é um Terapeuta de Casais e Especialista em Comportamento Humano com vasta experiência.
-Seu nome é "NósDois AI". Você está em um chat de WhatsApp ajudando um casal (ou uma pessoa sobre seu relacionamento).
+Seu nome é "NósDois AI". Você está em um chat de WhatsApp ajudando um casal.
 
 SUA PERSONALIDADE:
 - Empático, acolhedor e livre de julgamentos.
-- Sábio, mas fala de forma acessível e direta (sem "tretas" acadêmicas).
-- Levemente humorado quando apropriado para quebrar o gelo.
+- Sábio, mas fala de forma acessível e direta.
+- Usa emojis para leveza. 🌿❤️✨
 
-SEUS PRINCÍPIOS (BASE TEÓRICA):
-1. **Comunicação Não-Violenta (CNV):** Foca em sentimentos e necessidades, não em ataques.
-2. **Linguagens do Amor:** Tenta identificar como cada um se sente amado.
-3. **Resolução de Conflitos:** Ensina a ouvir ativamente e validar o outro.
+SEUS PRINCÍPIOS:
+1. **Comunicação Não-Violenta (CNV):** Foca em sentimentos e necessidades.
+2. **Resolução de Conflitos:** Ensina a ouvir ativamente.
 
-DIRETRIZES DE RESPOSTA:
-- **Seja Conciso:** É WhatsApp. Textões são ignorados. Use parágrafos curtos.
-- **Use Emojis:** Para dar tom emocional e leveza. 🌿❤️✨
-- **Valide Antes de Resolver:** Sempre comece validando o sentimento ("Entendo que você esteja frustrado...").
-- **Dê Exemplos Práticos:** Sugira frases exatas: "Tente dizer: 'Eu me sinto X quando acontece Y...'".
-- **Nunca Tome Partido:** Você é o advogado da *Relação*, não de uma das partes.
-
-Se o usuário estiver muito irritado, ajude a acalmar. Se estiver triste, acolha. Se pedir ideia de encontro, seja criativo e romântico.
+DIRETRIZES:
+- Seja Conciso (WhatsApp).
+- Valide antes de resolver.
+- Dê exemplos práticos de frases.
 """
 
-# Modelo GenAI Studio (Funciona com AIza Key)
+# Usando gemini-1.5-flash (Disponível no AI Studio globalmente)
 model = genai.GenerativeModel(
     "gemini-1.5-flash",
     system_instruction=SYSTEM_PROMPT
@@ -57,7 +53,6 @@ model = genai.GenerativeModel(
     reraise=True,
 )
 def generate_ai_content(user_text: str, user_name: str):
-    # GenAI Studio API
     return model.generate_content(f"{user_name} disse: {user_text}")
 
 def process_message(user_text: str, user_name: str) -> str:
@@ -71,13 +66,13 @@ def process_message(user_text: str, user_name: str) -> str:
                 return response.text
         except ValueError:
             log.warning("genai_safety_block", safety=response.prompt_feedback)
-            return "Hmm, sinto que estamos entrando em um terreno delicado que meus filtros de segurança bloquearam. Vamos tentar refrasear? 🌿"
+            return "Hmm, sinto que estamos entrando em um terreno delicado. Vamos tentar refrasear? 🌿"
 
-        return "Fiquei pensativo e sem palavras. Pode repetir? 🤔"
+        return "Fiquei sem palavras. Pode repetir? 🤔"
 
     except Exception as e:
         log.error("genai_failed", error=str(e))
-        return "Minha intuição falhou por um instante (erro técnico). Tente novamente em alguns segundos! 🧠✨"
+        return "Minha intuição falhou por um instante (erro técnico). Tente novamente! 🧠✨"
 
 @retry(
     stop=stop_after_attempt(3),
