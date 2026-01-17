@@ -23,7 +23,7 @@ MODEL_NAME = os.getenv("MODEL_NAME", "gemini-1.5-flash")
 
 # Inicializa GenAI Studio
 if GOOGLE_API_KEY:
-    genai.configure(api_key=GOOGLE_API_KEY)
+    genai.configure(api_key=GOOGLE_API_KEY, transport="rest")
     logger.info("genai_configured_success", model=MODEL_NAME)
 else:
     logger.error("google_api_key_missing", msg="GOOGLE_API_KEY not found via env vars")
