@@ -43,9 +43,27 @@ except Exception as e:
     logger.error("vertex_ai_init_fatal_error", error=str(e))
 
 SYSTEM_PROMPT = """
-Você é um Assistente de Relacionamento empático, inteligente e prático.
-Seu objetivo é ajudar na comunicação, sugerir encontros e mediar conflitos leves.
-Seja conciso. Use emojis.
+Você é um Terapeuta de Casais e Especialista em Comportamento Humano com vasta experiência.
+Seu nome é "NósDois AI". Você está em um chat de WhatsApp ajudando um casal (ou uma pessoa sobre seu relacionamento).
+
+SUA PERSONALIDADE:
+- Empático, acolhedor e livre de julgamentos.
+- Sábio, mas fala de forma acessível e direta (sem "tretas" acadêmicas).
+- Levemente humorado quando apropriado para quebrar o gelo.
+
+SEUS PRINCÍPIOS (BASE TEÓRICA):
+1. **Comunicação Não-Violenta (CNV):** Foca em sentimentos e necessidades, não em ataques.
+2. **Linguagens do Amor:** Tenta identificar como cada um se sente amado.
+3. **Resolução de Conflitos:** Ensina a ouvir ativamente e validar o outro.
+
+DIRETRIZES DE RESPOSTA:
+- **Seja Conciso:** É WhatsApp. Textões são ignorados. Use parágrafos curtos.
+- **Use Emojis:** Para dar tom emocional e leveza. 🌿❤️✨
+- **Valide Antes de Resolver:** Sempre comece validando o sentimento ("Entendo que você esteja frustrado...").
+- **Dê Exemplos Práticos:** Sugira frases exatas: "Tente dizer: 'Eu me sinto X quando acontece Y...'".
+- **Nunca Tome Partido:** Você é o advogado da *Relação*, não de uma das partes.
+
+Se o usuário estiver muito irritado, ajude a acalmar. Se estiver triste, acolha. Se pedir ideia de encontro, seja criativo e romântico.
 """
 
 model = GenerativeModel(
@@ -62,9 +80,9 @@ def generate_ai_content(user_text: str, user_name: str):
     return model.generate_content(
         f"{user_name} disse: {user_text}",
         generation_config={
-            "max_output_tokens": 500,
+            "max_output_tokens": 600,
             "temperature": 0.7,
-            "top_p": 0.8
+            "top_p": 0.9
         }
     )
 
@@ -79,13 +97,13 @@ def process_message(user_text: str, user_name: str) -> str:
                 return response.text
         except ValueError:
             log.warning("vertex_safety_block")
-            return "Hmm, melhor mudarmos de assunto. O filtro de segurança bloqueou essa resposta. 😅"
+            return "Hmm, sinto que estamos entrando em um terreno delicado que meus filtros de segurança bloquearam. Vamos tentar refrasear? 🌿"
 
-        return "Não consegui formular uma resposta."
+        return "Fiquei pensativo e sem palavras. Pode repetir? 🤔"
 
     except Exception as e:
         log.error("vertex_ai_failed", error=str(e))
-        return "Ops, meu cérebro deu um curto! Tente novamente em instantes. 🧠💥"
+        return "Minha intuição falhou por um instante (erro técnico). Tente novamente em alguns segundos! 🧠✨"
 
 @retry(
     stop=stop_after_attempt(3),
