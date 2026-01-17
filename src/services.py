@@ -30,7 +30,7 @@ Seja conciso. Use emojis. Não pareça um robô corporativo, seja um "amigo sáb
 
 # Inicializa o modelo
 model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash", system_instruction=SYSTEM_PROMPT
+    model_name="gemini-pro", system_instruction=SYSTEM_PROMPT
 )
 
 
