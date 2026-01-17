@@ -1,4 +1,12 @@
 import os
+
+# --- EXORCISMO DE CREDENCIAIS (CRUCIAL) ---
+# Força a remoção de credenciais do GCP para evitar que a lib tente usar a Service Account da VM
+# em vez da API Key. Isso resolve o erro 403 "ACCESS_TOKEN_SCOPE_INSUFFICIENT".
+if "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
+    print(f"🧹 Removendo credencial conflitante: {os.environ['GOOGLE_APPLICATION_CREDENTIALS']}")
+    del os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
+
 import httpx
 import google.generativeai as genai
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
