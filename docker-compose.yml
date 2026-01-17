@@ -55,7 +55,10 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      # Para dev local com Vertex AI, é necessário passar as credenciais:
+      # - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
+      # (Você precisaria montar o arquivo JSON de credenciais como volume)
+      - GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}
       - EVOLUTION_URL=http://evolution-api:8080
       - EVOLUTION_API_KEY=${EVOLUTION_API_KEY}
     networks:
