@@ -31,12 +31,15 @@ Seja conciso, empático e use emojis. 🌿❤️
     retry=retry_if_exception_type((httpx.ConnectError, httpx.TimeoutException)),
     reraise=True,
 )
-async def generate_ai_content_http(user_text: str, user_name: str):
+async def generate_ai_content_http(user_text: str, user_name: str, history_text: str = ""):
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={GOOGLE_API_KEY}"
     
+    # Prompt combinado com histórico
+    full_prompt = f"{SYSTEM_PROMPT}\n\n{history_text}\n\nO usuário {user_name} disse: {user_text}"
+
     payload = {
         "contents": [{
-            "parts": [{"text": f"{SYSTEM_PROMPT}\n\nO usuário {user_name} disse: {user_text}"}]
+            "parts": [{"text": full_prompt}]
         }],
         "generationConfig": {
             "temperature": 0.7,
@@ -49,21 +52,34 @@ async def generate_ai_content_http(user_text: str, user_name: str):
         response.raise_for_status()
         return response.json()
 
-async def process_message(user_text: str, user_name: str) -> str:
-    log = logger.bind(user_name=user_name)
+async def process_message(user_text: str, user_name: str, remote_jid: str = "unknown") -> str:
+    # Importação local para evitar ciclo se memory importar services (embora não importe agora)
+    from memory import conversation_manager
+    
+    log = logger.bind(user_name=user_name, jid=remote_jid)
+    
+    # 1. Recupera histórico
+    history_str = conversation_manager.get_formatted_history(remote_jid)
+    
+    # 2. Registra mensagem do usuário na memória
+    conversation_manager.add_message(remote_jid, "user", user_text, user_name)
+
     try:
-        log.info("calling_gemini_rest", model=GEMINI_MODEL)
+        log.info("calling_gemini_rest", model=GEMINI_MODEL, history_len=len(history_str))
         
-        # Chamada REST direta (Bypassa SDK)
-        data = await generate_ai_content_http(user_text, user_name)
+        # 3. Chamada REST com histórico
+        data = await generate_ai_content_http(user_text, user_name, history_str)
         
         try:
             # Extrai texto do JSON complexo do Gemini
-            text = data["candidates"][0]["content"]["parts"][0]["text"]
-            return text
+            ai_text = data["candidates"][0]["content"]["parts"][0]["text"]
+            
+            # 4. Registra resposta da IA na memória
+            conversation_manager.add_message(remote_jid, "model", ai_text)
+            
+            return ai_text
         except (KeyError, IndexError) as e:
             log.warning("gemini_parse_error", error=str(e), raw=str(data))
-            # Verifica se foi bloqueado por segurança
             if "promptFeedback" in data:
                 return "Sinto que tocamos em um ponto delicado. Vamos tentar falar de outra forma? 🌿"
             return "Fiquei sem palavras. Pode repetir?"

@@ -84,8 +84,8 @@ async def process_webhook_task(data: dict):
         if user_text:
             log.info("processing_message", text_length=len(user_text))
 
-            # 1. Processar com IA
-            ai_response = await process_message(user_text, push_name)
+            # 1. Processar com IA (Agora passando o JID para memória)
+            ai_response = await process_message(user_text, push_name, remote_jid)
 
             # 2. Enviar resposta
             await send_text(remote_jid, ai_response)
@@ -106,6 +106,7 @@ async def receive_webhook(request: Request, background_tasks: BackgroundTasks):
     Retorna 200 OK imediatamente.
     """
     body = await request.json()
+    logger.info("webhook_raw_hit", event=body.get("event"), headers=dict(request.headers))
     log = logger.bind(webhook_event=body.get("event"))
 
     try:
