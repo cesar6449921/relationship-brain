@@ -106,7 +106,7 @@ async def receive_webhook(request: Request, background_tasks: BackgroundTasks):
     Retorna 200 OK imediatamente.
     """
     body = await request.json()
-    logger.info("webhook_raw_hit", event=body.get("event"), headers=dict(request.headers))
+    logger.info("webhook_raw_hit", webhook_event=body.get("event"), headers=dict(request.headers))
     log = logger.bind(webhook_event=body.get("event"))
 
     try:
