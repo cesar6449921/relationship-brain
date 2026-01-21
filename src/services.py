@@ -135,6 +135,12 @@ async def process_message(user_text: str, user_name: str, remote_jid: str = "unk
     reraise=False,
 )
 async def send_text(remote_jid: str, text: str):
+    # --- MOCK LOGIC ---
+    if os.getenv("MOCK_WHATSAPP", "false").lower() == "true":
+        logger.warning(f"MOCK_MODE: Skipping send_text to {remote_jid}")
+        return
+    # ------------------
+
     url = f"{EVOLUTION_URL}/message/sendText/{INSTANCE_NAME}"
     log = logger.bind(remote_jid=remote_jid, instance=INSTANCE_NAME)
     
@@ -153,3 +159,49 @@ async def send_text(remote_jid: str, text: str):
         except Exception as e:
             log.error("evolution_api_connection_error", error=str(e))
             raise e
+
+async def create_whatsapp_group(subject: str, participants: list[str]) -> str:
+    """
+    Cria um grupo no WhatsApp com os participantes iniciais.
+    Retorna o JID do grupo criado (ex: 123456@g.us).
+    """
+    # --- MOCK LOGIC ---
+    if os.getenv("MOCK_WHATSAPP", "false").lower() == "true":
+         logger.warning("MOCK_MODE: Returning fake group ID for create_whatsapp_group")
+         return "123456789-group@g.us"
+    # ------------------
+    
+    url = f"{EVOLUTION_URL}/group/create/{INSTANCE_NAME}"
+    log = logger.bind(subject=subject, participants=participants)
+    
+    log.info("creating_whatsapp_group")
+
+    payload = {
+        "subject": subject,
+        "participants": participants,
+        "description": "Grupo de Terapia Guiada por IA - NósDois"
+    }
+    
+    headers = {"apikey": EVOLUTION_API_KEY, "Content-Type": "application/json"}
+
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        try:
+            response = await client.post(url, json=payload, headers=headers)
+            if response.status_code in (200, 201):
+                data = response.json()
+                # Dependendo da versão da Evolution, o retorno pode variar
+                # Geralmente retorna algo como { "id": "...", "subject": "..." } ou dentro de "group"
+                group_jid = data.get("id") or data.get("gid") or data.get("group", {}).get("id")
+                
+                if group_jid:
+                    log.info("group_created_success", group_jid=group_jid)
+                    return group_jid
+                else:
+                    log.error("group_creation_no_id", body=data)
+                    return None
+            else:
+                log.error("group_creation_failed", status=response.status_code, body=response.text)
+                return None
+        except Exception as e:
+            log.error("evolution_api_group_error", error=str(e))
+            return None
