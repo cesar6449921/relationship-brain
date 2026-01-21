@@ -11,8 +11,11 @@ COPY . .
 
 # Environment variables (default)
 ENV PORT=8000
+ENV PYTHONUNBUFFERED=1
 
 # Run with Uvicorn in production mode
 # --proxy-headers: Trust Cloud Run load balancer headers
 # --workers 1: For simple bot logic; increase if needed
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1", "--proxy-headers"]
+# --log-level info: Ensure logs are visible
+# --access-log: Enable access logs
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1", "--proxy-headers", "--log-level", "info", "--access-log"]
