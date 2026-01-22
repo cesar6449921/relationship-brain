@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, BackgroundTasks, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.middleware.cors import CORSMiddleware  # Import CORS
 from sqlmodel import Session, select
 from datetime import timedelta
 from dotenv import load_dotenv
@@ -57,7 +58,18 @@ async def lifespan(app: FastAPI):
         done, pending = await asyncio.wait(active_tasks, timeout=2.0)
 
 app = FastAPI(lifespan=lifespan)
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
+
+# --- Configuração CORS (Permitir Frontend) ---
+# Em produção, você pode restringir allow_origins=["https://seu-frontend.com"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permite tudo por enquanto
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token") # URL atualizada para /api
 
 # --- Dependências de Autenticação ---
 async def get_current_user(token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)):
@@ -80,9 +92,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme), session: Session
         raise credentials_exception
     return user
 
-# --- Rotas de Autenticação ---
+# --- Rotas de Autenticação (Prefixo /api) ---
 
-@app.post("/auth/signup", response_model=dict)
+@app.post("/api/auth/signup", response_model=dict)
 async def signup(user: UserCreate, session: Session = Depends(get_session)):
     # Check existing
     statement = select(User).where(User.email == user.email)
@@ -103,7 +115,7 @@ async def signup(user: UserCreate, session: Session = Depends(get_session)):
     session.refresh(db_user)
     return {"status": "created", "user_id": db_user.id}
 
-@app.post("/auth/token")
+@app.post("/api/auth/token")
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(get_session)):
     statement = select(User).where(User.email == form_data.username)
     user = session.exec(statement).first()
@@ -116,9 +128,9 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Sessi
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-# --- Rotas de Negócio (Casal) ---
+# --- Rotas de Negócio (Casal) (Prefixo /api) ---
 
-@app.post("/couples", response_model=CoupleRead)
+@app.post("/api/couples", response_model=CoupleRead)
 async def create_couple(
     couple_data: CoupleCreate, 
     current_user: User = Depends(get_current_user), 
