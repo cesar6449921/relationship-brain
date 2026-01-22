@@ -13,12 +13,12 @@ const apiUrl = import.meta.env.VITE_API_URL;
 if (apiUrl) {
     axios.defaults.baseURL = apiUrl;
 } else {
-    // Fallback para dev local ou se esquecerem de configurar
-    // Se estiver rodando no localhost:3000 (Vite), tenta bater no :8000
+    // Fallback para dev local ou produção via IP direto
     if (window.location.hostname === 'localhost') {
         axios.defaults.baseURL = 'http://localhost:8000';
     } else {
-        // HARDCODED FALLBACK: Conecta direto no IP novo se não tiver ENV configurado
+        // HARDCODED FALLBACK: Usa HTTP puro para evitar problema de Mixed Content
+        // já que você está acessando o site via IP (http://35...)
         axios.defaults.baseURL = 'http://35.247.254.108:8000';
     }
 }
