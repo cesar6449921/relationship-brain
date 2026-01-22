@@ -47,6 +47,12 @@ git push
    - **Start Command**: `npm run preview -- --host 0.0.0.0 --port 3000` (Ou use uma imagem Nginx para servir estático).
    
    *Melhor opção:* Use um Dockerfile para o Frontend também. (Vou criar um `frontend/Dockerfile` agora).
+   
+   **IMPORTANTE - CONFIGURAÇÃO DE PORTA:**
+   Após criar o serviço, vá na aba **Domains** e certifique-se de que a porta interna está correta:
+   - Para o **Frontend**: Configure a porta do container para **80** (Nginx padrão).
+   - Para o **Backend**: Configure a porta do container para **8000**.
+
 
 4. **Environment Variables**:
    ```env
