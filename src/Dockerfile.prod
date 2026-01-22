@@ -10,12 +10,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Environment variables (default)
+# Environment variables (default)
 ENV PORT=8000
 ENV PYTHONUNBUFFERED=1
 
+EXPOSE 8000
+
 # Run with Uvicorn in production mode
-# --proxy-headers: Trust Cloud Run load balancer headers
-# --workers 1: For simple bot logic; increase if needed
-# --log-level info: Ensure logs are visible
-# --access-log: Enable access logs
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1", "--proxy-headers", "--log-level", "info", "--access-log"]
+# Uses shell form to allow variable expansion for $PORT
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT} --workers 1 --proxy-headers --log-level info --access-log
