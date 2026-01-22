@@ -17,8 +17,10 @@ if (apiUrl) {
     // Se estiver rodando no localhost:3000 (Vite), tenta bater no :8000
     if (window.location.hostname === 'localhost') {
         axios.defaults.baseURL = 'http://localhost:8000';
+    } else {
+        // HARDCODED FALLBACK: Conecta direto no IP novo se não tiver ENV configurado
+        axios.defaults.baseURL = 'http://35.247.254.108:8000';
     }
-    // Se estiver em produção sem VAR, axios usa relative path por padrão
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
