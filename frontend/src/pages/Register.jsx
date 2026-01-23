@@ -1,38 +1,46 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { Heart, Loader2 } from 'lucide-react';
 
-export default function Register() {
+const Register = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
-    const [loading, setLoading] = useState(false);
-    const [status, setStatus] = useState(''); // 'creating_account', 'logging_in', 'creating_group', 'done'
-    const [serverError, setServerError] = useState('');
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
+    const [status, setStatus] = useState('idle'); // idle, creating_account, logging_in, creating_group, done
+    const [serverError, setServerError] = useState('');
 
     const onSubmit = async (data) => {
         setLoading(true);
         setServerError('');
         setStatus('creating_account');
-        
+
+        console.log("🚀 Iniciando registro...");
+        console.log("📡 API Base URL:", axios.defaults.baseURL);
+        console.log("📦 Dados do formulário:", data);
+
         try {
             // 1. Criar Conta do Usuário
+            console.log("➡️ Enviando POST /api/auth/signup");
             await axios.post('/api/auth/signup', {
                 full_name: data.full_name,
                 email: data.email,
                 phone_number: data.phone_number,
                 password: data.password
             });
+            console.log("✅ Usuário criado!");
 
             // 2. Fazer Login Automático para pegar o Token
             setStatus('logging_in');
             const formData = new FormData();
             formData.append('username', data.email);
             formData.append('password', data.password);
-            
+
+            console.log("➡️ Enviando POST /api/auth/token");
             const loginRes = await axios.post('/api/auth/token', formData);
             const token = loginRes.data.access_token;
+            console.log("✅ Login realizado! Token obtido.");
             localStorage.setItem('token', token); // Salva token se necessário em contexto global depois
 
             // 3. Criar o Casal (e disparar criação do grupo no WhatsApp)
@@ -42,22 +50,35 @@ export default function Register() {
                 headers: { Authorization: `Bearer ${token}` }
             };
 
+            console.log("➡️ Enviando POST /api/couples");
             await axios.post('/api/couples', {
                 partner_name: data.partner_name,
                 partner_phone: data.partner_phone
             }, authConfig);
+            console.log("✅ Casal e grupo criados!");
 
             setStatus('done');
             // Redireciona para o Dashboard (que deve existir) ou avisa sucesso
             navigate('/dashboard?new_couple=true');
 
         } catch (err) {
-            console.error(err);
+            console.error("❌ ERRO NO PROCESSO:", err);
+            console.log("🌐 Detalhes do erro config:", err.config);
+
             let msg = 'Erro ao criar conta. Tente novamente.';
             if (err.response) {
+                console.error("🔴 Status do Erro:", err.response.status);
+                console.error("🔴 Dados do Erro:", err.response.data);
+
                 if (status === 'creating_account') msg = `Erro no cadastro: ${err.response.data.detail || msg}`;
                 else if (status === 'logging_in') msg = `Conta criada, mas erro no login: ${err.response.data.detail || msg}`;
                 else if (status === 'creating_group') msg = `Conta criada, mas erro ao criar grupo: ${err.response.data.detail || msg}`;
+            } else if (err.request) {
+                console.error("🔴 Sem resposta do servidor. O backend pode estar offline ou bloqueado.");
+                msg = "Erro de conexão com o servidor. Verifique sua internet ou tente mais tarde.";
+            } else {
+                console.error("🔴 Erro na configuração da requisição:", err.message);
+                msg = `Erro interno: ${err.message}`;
             }
             setServerError(msg);
         } finally {
@@ -85,7 +106,7 @@ export default function Register() {
                     <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
 
                         <div className="border-b border-slate-200 pb-4 mb-4">
-                             <h3 className="text-lg font-medium text-slate-900 mb-4">Seus Dados</h3>
+                            <h3 className="text-lg font-medium text-slate-900 mb-4">Seus Dados</h3>
                             {/* Nome Completo */}
                             <div className="mb-4">
                                 <label htmlFor="full_name" className="block text-sm font-medium text-slate-700">
@@ -129,14 +150,14 @@ export default function Register() {
                                         type="tel"
                                         placeholder="Ex: 5511999999999"
                                         required
-                                        {...register("phone_number", { required: true })}
+                                        {...register("phone_number", { required: true, minLength: 10 })}
                                         className="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-brand-500 focus:border-brand-500"
                                     />
                                 </div>
                             </div>
 
-                             {/* Senha */}
-                            <div>
+                            {/* Senha */}
+                            <div className="mb-4">
                                 <label htmlFor="password" className="block text-sm font-medium text-slate-700">
                                     Senha
                                 </label>
@@ -153,12 +174,12 @@ export default function Register() {
                         </div>
 
                         <div className="pt-2">
-                             <h3 className="text-lg font-medium text-slate-900 mb-4">Dados do Parceiro(a)</h3>
-                             <p className="text-xs text-brand-600 mb-4 bg-brand-50 p-2 rounded">
+                            <h3 className="text-lg font-medium text-slate-900 mb-4">Dados do Parceiro(a)</h3>
+                            <p className="text-xs text-brand-600 mb-4 bg-brand-50 p-2 rounded">
                                 Vamos criar um grupo no WhatsApp com vocês dois e a IA automaticamente!
-                             </p>
-                             
-                             {/* Nome Parceiro */}
+                            </p>
+
+                            {/* Nome Parceiro */}
                             <div className="mb-4">
                                 <label htmlFor="partner_name" className="block text-sm font-medium text-slate-700">
                                     Nome do Parceiro(a)
@@ -174,8 +195,8 @@ export default function Register() {
                                 </div>
                             </div>
 
-                             {/* Telefone Parceiro */}
-                             <div>
+                            {/* WhatsApp Parceiro */}
+                            <div className="mb-4">
                                 <label htmlFor="partner_phone" className="block text-sm font-medium text-slate-700">
                                     WhatsApp do Parceiro(a)
                                 </label>
@@ -183,9 +204,9 @@ export default function Register() {
                                     <input
                                         id="partner_phone"
                                         type="tel"
-                                        placeholder="Ex: 5511888888888"
+                                        placeholder="Ex: 5511999999999"
                                         required
-                                        {...register("partner_phone", { required: true })}
+                                        {...register("partner_phone", { required: true, minLength: 10 })}
                                         className="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-brand-500 focus:border-brand-500"
                                     />
                                 </div>
@@ -193,8 +214,14 @@ export default function Register() {
                         </div>
 
                         {serverError && (
-                            <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md border border-red-100">
-                                {serverError}
+                            <div className="rounded-md bg-red-50 p-4">
+                                <div className="flex">
+                                    <div className="ml-3">
+                                        <h3 className="text-sm font-medium text-red-800">
+                                            {serverError}
+                                        </h3>
+                                    </div>
+                                </div>
                             </div>
                         )}
 
@@ -202,18 +229,16 @@ export default function Register() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 disabled:opacity-70 disabled:cursor-not-allowed transition-all"
+                                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 disabled:opacity-50"
                             >
                                 {loading ? (
-                                    <div className="flex items-center gap-2">
-                                        <Loader2 className="animate-spin h-5 w-5" />
-                                        <span>
-                                            {status === 'creating_account' && 'Criando conta...'}
-                                            {status === 'logging_in' && 'Autenticando...'}
-                                            {status === 'creating_group' && 'Criando grupo no WhatsApp...'}
-                                        </span>
-                                    </div>
-                                ) : 'Criar Conta & Iniciar Terapia'}
+                                    <>
+                                        <Loader2 className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
+                                        Processando...
+                                    </>
+                                ) : (
+                                    'Criar Conta & Iniciar Terapia'
+                                )}
                             </button>
                         </div>
                     </form>
@@ -221,4 +246,6 @@ export default function Register() {
             </div>
         </div>
     );
-}
+};
+
+export default Register;
