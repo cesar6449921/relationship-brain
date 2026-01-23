@@ -146,40 +146,39 @@ export default function Settings() {
                         </button>
                     </div>
                 </form>
-            </form>
-        </div>
+            </div>
 
-            {/* Zona de Perigo */ }
-    <div className="mt-8 bg-red-50 rounded-2xl shadow-sm border border-red-100 p-8">
-        <h3 className="text-lg font-bold text-red-800 mb-2">Zona de Perigo</h3>
-        <p className="text-sm text-red-600 mb-6">
-            Esta ação irá desconectar você do seu parceiro(a) e do grupo no WhatsApp. O histórico de conversas com a IA será perdido para sempre.
-        </p>
-        <div className="flex justify-end">
-            <button
-                onClick={async () => {
-                    if (window.confirm("Tem certeza absoluta? Isso irá apagar o grupo e desconectar o parceiro.")) {
-                        try {
-                            setLoading(true);
-                            const token = localStorage.getItem('token');
-                            await axios.delete('/api/couples/me', {
-                                headers: { Authorization: `Bearer ${token}` }
-                            });
-                            alert('Grupo desconectado com sucesso.');
-                            window.location.href = '/dashboard'; // Recarrega para voltar ao estado inicial
-                        } catch (err) {
-                            alert('Erro ao excluir grupo: ' + (err.response?.data?.detail || err.message));
-                        } finally {
-                            setLoading(false);
-                        }
-                    }
-                }}
-                className="px-6 py-2.5 bg-red-100 text-red-700 font-medium rounded-lg hover:bg-red-200 transition-colors border border-red-200"
-            >
-                Desconectar Casal & Excluir Grupo
-            </button>
-        </div>
-    </div>
+            {/* Zona de Perigo */}
+            <div className="mt-8 bg-red-50 rounded-2xl shadow-sm border border-red-100 p-8">
+                <h3 className="text-lg font-bold text-red-800 mb-2">Zona de Perigo</h3>
+                <p className="text-sm text-red-600 mb-6">
+                    Esta ação irá desconectar você do seu parceiro(a) e do grupo no WhatsApp. O histórico de conversas com a IA será perdido para sempre.
+                </p>
+                <div className="flex justify-end">
+                    <button
+                        onClick={async () => {
+                            if (window.confirm("Tem certeza absoluta? Isso irá apagar o grupo e desconectar o parceiro.")) {
+                                try {
+                                    setLoading(true);
+                                    const token = localStorage.getItem('token');
+                                    await axios.delete('/api/couples/me', {
+                                        headers: { Authorization: `Bearer ${token}` }
+                                    });
+                                    alert('Grupo desconectado com sucesso.');
+                                    window.location.href = '/dashboard'; // Recarrega para voltar ao estado inicial
+                                } catch (err) {
+                                    alert('Erro ao excluir grupo: ' + (err.response?.data?.detail || err.message));
+                                } finally {
+                                    setLoading(false);
+                                }
+                            }
+                        }}
+                        className="px-6 py-2.5 bg-red-100 text-red-700 font-medium rounded-lg hover:bg-red-200 transition-colors border border-red-200"
+                    >
+                        Desconectar Casal & Excluir Grupo
+                    </button>
+                </div>
+            </div>
         </div >
     );
 }
