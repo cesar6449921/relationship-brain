@@ -92,7 +92,7 @@ async def generate_ai_content_http(user_text: str, user_name: str, history_text:
         response.raise_for_status()
         return response.json()
 
-async def process_message(user_text: str, user_name: str, remote_jid: str = "unknown") -> str:
+async def process_message(user_text: str, user_name: str, remote_jid: str = "unknown", couple_context: dict = None) -> str:
     # Importação local para evitar ciclo se memory importar services (embora não importe agora)
     from memory import conversation_manager
     
@@ -101,14 +101,27 @@ async def process_message(user_text: str, user_name: str, remote_jid: str = "unk
     # 1. Recupera histórico
     history_str = conversation_manager.get_formatted_history(remote_jid)
     
+    # 2. Injeta Contexto dos Casais (Nomes vs Números)
+    context_instruction = ""
+    if couple_context:
+        # Ex: "Contexto: O usuário atual é Julio. O parceiro é Tainá (55279...)."
+        context_instruction = (
+            f"\n\n[CONTEXTO DO CASAL]\n"
+            f"Você está falando com um casal. Use os nomes reais abaixo em vez de números:\n"
+            f"- Usuário Atual: {couple_context.get('user_name')} (Telefone: {couple_context.get('user_phone')})\n"
+            f"- Parceiro(a): {couple_context.get('partner_name')} (Telefone: {couple_context.get('partner_phone')})\n"
+            f"Sempre se refira a eles pelos nomes. Se eles mencionarem '@...', entenda que é o parceiro.\n"
+        )
+    
     # 2. Registra mensagem do usuário na memória
     conversation_manager.add_message(remote_jid, "user", user_text, user_name)
 
     try:
         log.info("calling_gemini_rest", model=GEMINI_MODEL, history_len=len(history_str))
         
-        # 3. Chamada REST com histórico
-        data = await generate_ai_content_http(user_text, user_name, history_str)
+        # 3. Chamada REST com histórico E contexto
+        full_text_start = f"{context_instruction}\n{history_str}" if couple_context else history_str
+        data = await generate_ai_content_http(user_text, user_name, full_text_start)
         
         try:
             # Extrai texto do JSON complexo do Gemini

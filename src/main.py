@@ -12,7 +12,7 @@ load_dotenv()
 # Imports Locais
 from services import process_message, send_text, create_whatsapp_group
 from logging_config import setup_logging, get_logger
-from database import create_db_and_tables, get_session
+from database import create_db_and_tables, get_session, engine
 from models import User, UserCreate, UserUpdate, Couple, CoupleCreate, CoupleRead
 from auth import (
     get_password_hash, 
@@ -309,8 +309,24 @@ async def process_webhook_task(data: dict):
                     should_respond = False
                     log.info("group_message_ignored_no_trigger")
 
+            # Busca contexto do casal no banco se for grupo
+            couple_context = None
+            if is_group:
+                with Session(engine) as session:
+                    couple = session.exec(select(Couple).where(Couple.group_jid == remote_jid)).first()
+                    if couple:
+                        # Precisamos buscar o User dono do casal para saber o nome dele
+                        user_owner = session.get(User, couple.user_id)
+                        if user_owner:
+                            couple_context = {
+                                "user_name": user_owner.full_name,
+                                "user_phone": user_owner.phone_number,
+                                "partner_name": couple.partner_name,
+                                "partner_phone": couple.partner_phone
+                            }
+            
             if should_respond:
-                ai_response = await process_message(user_text, push_name, remote_jid)
+                ai_response = await process_message(user_text, push_name, remote_jid, couple_context)
                 await send_text(remote_jid, ai_response)
                 log.info("task_completed_successfully")
 
