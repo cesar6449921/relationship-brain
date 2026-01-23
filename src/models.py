@@ -19,6 +19,12 @@ class UserCreate(UserBase):
 class UserRead(UserBase):
     id: int
 
+class UserUpdate(SQLModel):
+    full_name: Optional[str] = None
+    email: Optional[str] = None
+    phone_number: Optional[str] = None
+    password: Optional[str] = None
+
 # Modelo para o Casal/Grupo
 class CoupleBase(SQLModel):
     user_id: int = Field(foreign_key="user.id")

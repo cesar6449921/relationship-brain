@@ -13,7 +13,7 @@ load_dotenv()
 from services import process_message, send_text, create_whatsapp_group
 from logging_config import setup_logging, get_logger
 from database import create_db_and_tables, get_session
-from models import User, UserCreate, Couple, CoupleCreate, CoupleRead
+from models import User, UserCreate, UserUpdate, Couple, CoupleCreate, CoupleRead
 from auth import (
     get_password_hash, 
     verify_password, 
@@ -143,6 +143,37 @@ def get_my_info(current_user: User = Depends(get_current_user), session: Session
         },
         "couple": couple
     }
+
+@app.put("/api/me")
+def update_my_info(
+    user_update: UserUpdate,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session)
+):
+    """Atualiza dados do perfil do usuário."""
+    if user_update.full_name:
+        current_user.full_name = user_update.full_name
+    if user_update.email:
+        # Check if email is taken by another user
+        if user_update.email != current_user.email:
+            existing_user = session.exec(select(User).where(User.email == user_update.email)).first()
+            if existing_user:
+                raise HTTPException(status_code=400, detail="Email already registered")
+        current_user.email = user_update.email
+    if user_update.phone_number:
+        current_user.phone_number = user_update.phone_number
+    if user_update.password:
+        current_user.hashed_password = get_password_hash(user_update.password)
+        
+    session.add(current_user)
+    session.commit()
+    session.refresh(current_user)
+    return {"status": "updated", "user": {
+        "id": current_user.id,
+        "full_name": current_user.full_name,
+        "email": current_user.email,
+        "phone_number": current_user.phone_number
+    }}
 
 # --- Rotas de Negócio (Casal) (Prefixo /api) ---
 
