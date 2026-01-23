@@ -130,7 +130,7 @@ async def process_message(user_text: str, user_name: str, remote_jid: str = "unk
     retry=retry_if_exception_type((httpx.ConnectError, httpx.TimeoutException)),
     reraise=False,
 )
-async def send_text(remote_jid: str, text: str):
+async def send_text(remote_jid: str, text: str, mentions: list[str] = None):
     # --- MOCK LOGIC ---
     if os.getenv("MOCK_WHATSAPP", "false").lower() == "true":
         logger.warning(f"MOCK_MODE: Skipping send_text to {remote_jid}")
@@ -143,6 +143,8 @@ async def send_text(remote_jid: str, text: str):
     log.info("sending_whatsapp_message")
 
     payload = {"number": remote_jid, "text": text, "delay": 1200, "linkPreview": True}
+    if mentions:
+        payload["mentions"] = mentions
     headers = {"apikey": EVOLUTION_API_KEY, "Content-Type": "application/json"}
 
     async with httpx.AsyncClient(timeout=30.0) as client:

@@ -362,11 +362,36 @@ async def process_webhook_task(data: dict):
                 messages = ai_response.split("<QUEBRA>")
                 for i, msg in enumerate(messages):
                     msg = msg.strip()
-                    if msg:
-                        await send_text(remote_jid, msg)
-                        # Se não for a última mensagem, espera um pouco para dar efeito de "digitando"
-                        if i < len(messages) - 1:
-                            await asyncio.sleep(2) # Pausa de 2 segundos entre balões
+                    if not msg: continue
+                    
+                    # Processamento de Menções (Nome -> @Numero)
+                    mentions_list = []
+                    if couple_context:
+                        # Helper para substituir nome por menção
+                        def process_mention(text, name, phone):
+                            if name and phone and name.lower() in text.lower():
+                                # Estratégia simples: Replace case-insensitive
+                                import re
+                                pattern = re.compile(re.escape(name), re.IGNORECASE)
+                                # Apenas substitui se encontrar. O WhatsApp precisa do formato @55...
+                                # Mas cuidado para não substituir se já tiver @
+                                text = pattern.sub(f"@{phone}", text)
+                                mentions_list.append(phone)
+                            return text
+
+                        p_name = couple_context.get("partner_name", "").split()[0] # Primeiro nome
+                        p_phone = couple_context.get("partner_phone", "")
+                        u_name = couple_context.get("user_name", "").split()[0]
+                        u_phone = couple_context.get("user_phone", "")
+
+                        msg = process_mention(msg, p_name, p_phone)
+                        msg = process_mention(msg, u_name, u_phone)
+
+                    await send_text(remote_jid, msg, mentions=mentions_list)
+                    
+                    # Se não for a última mensagem, espera um pouco para dar efeito de "digitando"
+                    if i < len(messages) - 1:
+                        await asyncio.sleep(2) # Pausa de 2 segundos entre balões
                 
                 # Atualiza timestamp da última resposta
                 last_bot_reply_time[remote_jid] = datetime.utcnow()
