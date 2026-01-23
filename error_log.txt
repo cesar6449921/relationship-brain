@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "D:\PROJETOS-ANTIGRAVITY\NoisDois AI 2.0\src\main.py", line 178, in google_login
+    random_pwd = os.urandom(16).hex()
+                 ^^
+NameError: name 'os' is not defined. Did you forget to import 'os'

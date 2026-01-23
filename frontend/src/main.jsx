@@ -4,6 +4,7 @@ import App from './App.jsx'
 import './index.css'
 import { BrowserRouter } from 'react-router-dom'
 import axios from 'axios'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 
 // Configuração Global do Axios
 // Se VITE_API_URL estiver definido (no .env ou EasyPanel), usa ele.
@@ -21,10 +22,15 @@ if (apiUrl) {
     }
 }
 
+// const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+// console.log("GOOGLE ID DEBUG:", googleClientId);
+
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
-        <BrowserRouter>
-            <App />
-        </BrowserRouter>
+        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+            <BrowserRouter>
+                <App />
+            </BrowserRouter>
+        </GoogleOAuthProvider>
     </React.StrictMode>,
 )

@@ -4,6 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Heart, Loader2 } from 'lucide-react';
 
+import { GoogleLogin } from '@react-oauth/google';
+
 export default function Login() {
     const { register, handleSubmit } = useForm();
     const [loading, setLoading] = useState(false);
@@ -25,6 +27,23 @@ export default function Login() {
             navigate('/dashboard');
         } catch (err) {
             setServerError('Email ou senha incorretos.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGoogleSuccess = async (credentialResponse) => {
+        setLoading(true);
+        setServerError('');
+        try {
+            const res = await axios.post('/api/auth/google', {
+                token: credentialResponse.credential
+            });
+            localStorage.setItem('token', res.data.access_token);
+            navigate('/dashboard');
+        } catch (err) {
+            console.error("Google login failed", err);
+            setServerError('Falha no login com Google.');
         } finally {
             setLoading(false);
         }
@@ -61,9 +80,16 @@ export default function Login() {
                         </div>
 
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-slate-700">
-                                Senha
-                            </label>
+                            <div className="flex items-center justify-between">
+                                <label htmlFor="password" className="block text-sm font-medium text-slate-700">
+                                    Senha
+                                </label>
+                                <div className="text-sm">
+                                    <Link to="/forgot-password" className="font-medium text-brand-600 hover:text-brand-500">
+                                        Esqueceu a senha?
+                                    </Link>
+                                </div>
+                            </div>
                             <div className="mt-1">
                                 <input
                                     id="password"
@@ -91,6 +117,27 @@ export default function Login() {
                             </button>
                         </div>
                     </form>
+
+                    <div className="mt-6">
+                        <div className="relative">
+                            <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-gray-300" />
+                            </div>
+                            <div className="relative flex justify-center text-sm">
+                                <span className="px-2 bg-white text-gray-500">
+                                    Ou continue com
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="mt-6 flex justify-center">
+                            <GoogleLogin
+                                onSuccess={handleGoogleSuccess}
+                                onError={() => setServerError('Login com Google falhou (Pop-up fechado?).')}
+                                useOneTap
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

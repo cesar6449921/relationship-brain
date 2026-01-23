@@ -23,6 +23,7 @@ from auth import (
 )
 import time
 import asyncio
+import os
 from jose import JWTError, jwt
 
 # Setup logging
@@ -58,6 +59,23 @@ async def lifespan(app: FastAPI):
         done, pending = await asyncio.wait(active_tasks, timeout=2.0)
 
 app = FastAPI(lifespan=lifespan)
+
+# Configuração de CORS
+origins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://app.nosai.online",
+    "http://app.nosai.online",
+    "*" # Para dev, liberar geral (mas em prod cuidado)
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # Liberando * para resolver o problema rápido. Depois restringimos.
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # --- Configuração CORS (Permitir Frontend) ---
 # Em produção, você pode restringir allow_origins=["https://seu-frontend.com"]
@@ -115,6 +133,78 @@ async def signup(user: UserCreate, session: Session = Depends(get_session)):
     session.refresh(db_user)
     return {"status": "created", "user_id": db_user.id}
 
+from pydantic import BaseModel
+
+class PasswordResetRequest(BaseModel):
+    email: str
+
+class PasswordResetConfirm(BaseModel):
+    token: str
+    new_password: str
+
+class GoogleRequest(BaseModel):
+    token: str
+
+@app.post("/api/auth/google")
+async def google_login(request: GoogleRequest, session: Session = Depends(get_session)):
+    import traceback
+    from google.oauth2 import id_token
+    from google.auth.transport import requests as google_requests
+
+    GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+    if not GOOGLE_CLIENT_ID:
+        raise HTTPException(status_code=500, detail="Server config error: GOOGLE_CLIENT_ID missing")
+
+    try:
+        # Verify the token
+        idinfo = id_token.verify_oauth2_token(
+            request.token, 
+            google_requests.Request(), 
+            GOOGLE_CLIENT_ID
+        )
+
+        email = idinfo.get("email")
+        name = idinfo.get("name")
+        # picture = idinfo.get("picture")
+
+        if not email:
+            raise HTTPException(status_code=400, detail="Google token missing email")
+
+        # Check existing user
+        user = session.exec(select(User).where(User.email == email)).first()
+        
+        if not user:
+            # Create new user
+            random_pwd = os.urandom(16).hex()
+            hashed_pwd = get_password_hash(random_pwd)
+            
+            user = User(
+                email=email,
+                full_name=name,
+                phone_number="", # Vai precisar preencher depois
+                hashed_password=hashed_pwd
+            )
+            session.add(user)
+            session.commit()
+            session.refresh(user)
+
+        # Login success -> Generate Token
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": user.email}, expires_delta=access_token_expires
+        )
+        return {"access_token": access_token, "token_type": "bearer"}
+
+    except ValueError:
+        # Invalid token specific from google lib
+        print(f"GOOGLE LOGIN INVALID TOKEN: {traceback.format_exc()}")
+        raise HTTPException(status_code=401, detail="Invalid Google Token")
+    except Exception as e:
+        print(f"GOOGLE LOGIN CRASH: {traceback.format_exc()}")
+        with open("error_log.txt", "w") as f:
+            f.write(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Internal Google Login Error: {str(e)}")
+
 @app.post("/api/auth/token")
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(get_session)):
     statement = select(User).where(User.email == form_data.username)
@@ -127,6 +217,43 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Sessi
         data={"sub": user.email}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+@app.post("/api/auth/forgot-password")
+async def forgot_password(request: PasswordResetRequest, session: Session = Depends(get_session)):
+    user = session.exec(select(User).where(User.email == request.email)).first()
+    if not user:
+        # Padrão de segurança: não revelar se existe, mas para debug/MVP vamos retornar erro se não achar
+        raise HTTPException(status_code=404, detail="Email não encontrado.")
+    
+    # Generate reset token
+    expires = timedelta(minutes=15)
+    reset_token = create_access_token(data={"sub": user.email, "type": "reset"}, expires_delta=expires)
+    
+    # In a real app, send email. Here, we log it.
+    logger.info(f"PASSWORD_RESET_TOKEN_GENERATED", email=user.email, token=reset_token)
+    
+    return {"message": "Token gerado! Verifique os logs do servidor.", "debug_token": reset_token}
+
+@app.post("/api/auth/reset-password")
+async def reset_password(request: PasswordResetConfirm, session: Session = Depends(get_session)):
+    try:
+        payload = jwt.decode(request.token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        token_type: str = payload.get("type")
+        if email is None or token_type != "reset":
+            raise HTTPException(status_code=400, detail="Token inválido")
+    except JWTError:
+        raise HTTPException(status_code=400, detail="Token inválido ou expirado")
+        
+    user = session.exec(select(User).where(User.email == email)).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+        
+    user.hashed_password = get_password_hash(request.new_password)
+    session.add(user)
+    session.commit()
+    
+    return {"message": "Senha alterada com sucesso!"}
 
 @app.get("/api/me")
 def get_my_info(current_user: User = Depends(get_current_user), session: Session = Depends(get_session)):
