@@ -128,6 +128,22 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Sessi
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
+@app.get("/api/me")
+def get_my_info(current_user: User = Depends(get_current_user), session: Session = Depends(get_session)):
+    """Retorna dados do usuário logado e do seu casal (se houver)."""
+    statement = select(Couple).where(Couple.user_id == current_user.id)
+    couple = session.exec(statement).first()
+    
+    return {
+        "user": {
+            "id": current_user.id,
+            "full_name": current_user.full_name,
+            "email": current_user.email,
+            "phone_number": current_user.phone_number
+        },
+        "couple": couple
+    }
+
 # --- Rotas de Negócio (Casal) (Prefixo /api) ---
 
 @app.post("/api/couples", response_model=CoupleRead)
