@@ -194,7 +194,28 @@ async def create_couple(
     
     # Adicionar o número do bot também? Geralmente ele já é admin por criar.
     # remove_duplicates e formata
-    participants = list(set([p.replace("+", "").strip() for p in participants]))
+    cleaned_participants = []
+    for p in participants:
+        num = p.replace("+", "").strip()
+        
+        # Estratégia "Tiro de Canhão": Envia com e sem o 9º dígito para garantir
+        if num.startswith("55"):
+            # Se tem 13 dígitos (já tem o 9), cria versão sem
+            if len(num) == 13:
+                num_without_9 = f"{num[:4]}{num[5:]}"
+                cleaned_participants.append(num)
+                cleaned_participants.append(num_without_9)
+            # Se tem 12 dígitos (falta o 9), cria versão com
+            elif len(num) == 12:
+                num_with_9 = f"{num[:4]}9{num[4:]}"
+                cleaned_participants.append(num)
+                cleaned_participants.append(num_with_9)
+            else:
+                cleaned_participants.append(num)
+        else:
+            cleaned_participants.append(num)
+
+    participants = list(set(cleaned_participants))
     
     # 1. Cria grupo via Evolution API (ou Mock se MOCK_WHATSAPP=true)
     group_jid = await create_whatsapp_group(subject, participants)
@@ -271,14 +292,28 @@ async def process_webhook_task(data: dict):
         if user_text:
             log.info("processing_message", text_length=len(user_text))
             
-            # Aqui poderíamos validar no banco se esse remote_jid é um "Group JID" válido de um casal
-            # session = next(get_session())
-            # couple = session.exec(select(Couple).where(Couple.group_jid == remote_jid)).first()
-            # if couple: ...
-            
-            ai_response = await process_message(user_text, push_name, remote_jid)
-            await send_text(remote_jid, ai_response)
-            log.info("task_completed_successfully")
+            # --- Lógica de Intervenção em Grupos ---
+            is_group = remote_jid.endswith("@g.us")
+            should_respond = True
+
+            if is_group:
+                # Em grupos, só responde se for mencionado ou comando
+                # Palavras-gatilho: @bot (precisaria saber o nome), /ia, oi terapeuta, etc
+                triggers = ["/ia", "/ajuda", "nósdois", "nosdois", "bot", "terapeuta"]
+                user_text_lower = user_text.lower()
+                
+                # Verifica se alguma trigger está na mensagem
+                is_triggered = any(t in user_text_lower for t in triggers)
+                
+                if not is_triggered:
+                    should_respond = False
+                    log.info("group_message_ignored_no_trigger")
+
+            if should_respond:
+                ai_response = await process_message(user_text, push_name, remote_jid)
+                await send_text(remote_jid, ai_response)
+                log.info("task_completed_successfully")
+
         else:
             log.info("ignored_message_no_text")
     except Exception as e:
