@@ -73,5 +73,9 @@ class ConversationManager:
         formatted += "-------------------------"
         return formatted
 
+    def clear_history(self, remote_jid: str):
+        if remote_jid in self.conversations:
+            del self.conversations[remote_jid]
+
 # Instância global (Singleton simples para este app stateful)
 conversation_manager = ConversationManager()

@@ -271,6 +271,11 @@ def delete_my_couple(
 def health_check():
     return {"status": "Bot está vivo e pronto!", "version": "2.0 (Database Enabled)"}
 
+# Variável Global para rastrear última resposta do Bot por JID
+from datetime import datetime
+last_bot_reply_time: dict[str, datetime] = {}
+BOT_ACTIVE_WINDOW_SECONDS = 120  # Janela de 2 minutos para conversa contínua
+
 async def process_webhook_task(data: dict):
     # Logica original do webhook mantida para compatibilidade
     # Pode ser expandida para checar se a mensagem vem de um grupo cadastrado no banco
@@ -291,23 +296,42 @@ async def process_webhook_task(data: dict):
 
         if user_text:
             log.info("processing_message", text_length=len(user_text))
+
+            # --- COMANDO DE ADMINISTRAÇÃO ---
+            if user_text.strip().lower() == "/reset":
+                from memory import conversation_manager
+                conversation_manager.clear_history(remote_jid)
+                await send_text(remote_jid, "🧠 Memória reiniciada! Esqueci tudo o que conversamos. Vamos começar do zero? ✨")
+                return
             
             # --- Lógica de Intervenção em Grupos ---
             is_group = remote_jid.endswith("@g.us")
             should_respond = True
 
             if is_group:
-                # Em grupos, só responde se for mencionado ou comando
-                # Palavras-gatilho: @bot (precisaria saber o nome), /ia, oi terapeuta, etc
-                triggers = ["/ia", "/ajuda", "nósdois", "nosdois", "bot", "terapeuta"]
+                # 1. Verifica Triggers (Texto)
+                triggers = ["/ia", "/ajuda", "nósdois", "nosdois", "bot", "terapeuta", "inteligencia", "inteligência"]
                 user_text_lower = user_text.lower()
+                is_text_triggered = any(t in user_text_lower for t in triggers)
                 
-                # Verifica se alguma trigger está na mensagem
-                is_triggered = any(t in user_text_lower for t in triggers)
+                # 2. Verifica Menções (@)
+                context_info = data.get("message", {}).get("extendedTextMessage", {}).get("contextInfo", {})
+                mentioned_jids = context_info.get("mentionedJid", [])
+                is_mentioned = len(mentioned_jids) > 0
                 
-                if not is_triggered:
+                # 3. Conversa Ativa (Janela de Tempo)
+                last_reply = last_bot_reply_time.get(remote_jid)
+                is_active_conversation = False
+                if last_reply:
+                    delta = datetime.utcnow() - last_reply
+                    if delta.total_seconds() < BOT_ACTIVE_WINDOW_SECONDS:
+                        is_active_conversation = True
+                        log.info("active_conversation_window_open", seconds_since_last=delta.total_seconds())
+
+                # Decisão Final
+                if not is_text_triggered and not is_mentioned and not is_active_conversation:
                     should_respond = False
-                    log.info("group_message_ignored_no_trigger")
+                    log.info("group_message_ignored_no_trigger_or_active_window")
 
             # Busca contexto do casal no banco se for grupo
             couple_context = None
@@ -324,10 +348,28 @@ async def process_webhook_task(data: dict):
                                 "partner_name": couple.partner_name,
                                 "partner_phone": couple.partner_phone
                             }
-            
+                            # CORREÇÃO CRÍTICA: Sobrescreve o apelido do WhatsApp pelo Nome Real
+                            push_name = user_owner.full_name.split()[0]  # Pega só o primeiro nome
+
             if should_respond:
+                # Refresh log with correct name
+                log = logger.bind(remote_jid=remote_jid, push_name=push_name)
+                log.info("task_responding_with_context", is_active_window=is_active_conversation if 'is_active_conversation' in locals() else False)
+                
                 ai_response = await process_message(user_text, push_name, remote_jid, couple_context)
-                await send_text(remote_jid, ai_response)
+                
+                # SUPORTE A MENSAGENS PICADAS (<QUEBRA>)
+                messages = ai_response.split("<QUEBRA>")
+                for i, msg in enumerate(messages):
+                    msg = msg.strip()
+                    if msg:
+                        await send_text(remote_jid, msg)
+                        # Se não for a última mensagem, espera um pouco para dar efeito de "digitando"
+                        if i < len(messages) - 1:
+                            await asyncio.sleep(2) # Pausa de 2 segundos entre balões
+                
+                # Atualiza timestamp da última resposta
+                last_bot_reply_time[remote_jid] = datetime.utcnow()
                 log.info("task_completed_successfully")
 
         else:
