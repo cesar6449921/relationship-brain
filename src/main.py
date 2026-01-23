@@ -223,7 +223,28 @@ async def create_couple(
 
     return db_couple
 
-# --- Rotas Públicas (Health & Webhook) ---
+    return db_couple
+
+@app.delete("/api/couples/me")
+def delete_my_couple(
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session)
+):
+    """Remove a conexão de casal do usuário atual."""
+    statement = select(Couple).where(Couple.user_id == current_user.id)
+    couple = session.exec(statement).first()
+    
+    if not couple:
+        raise HTTPException(status_code=404, detail="Nenhum grupo ativo encontrado para este usuário.")
+    
+    # Aqui poderíamos tentar sair do grupo no WhatsApp via API também, se desejado
+    # await leave_whatsapp_group(couple.group_jid) 
+
+    session.delete(couple)
+    session.commit()
+    
+    return {"status": "deleted", "message": "Grupo desconectado com sucesso."}
+
 
 @app.get("/")
 def health_check():
