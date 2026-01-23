@@ -10,7 +10,7 @@ import axios from 'axios'
 // Se não, assume que o backend está na mesma origem (proxy) ou porta 8000 local para dev.
 // Para EasyPanel production, VITE_API_URL deve ser definido
 const apiUrl = import.meta.env.VITE_API_URL;
-const apiUrl = import.meta.env.VITE_API_URL;
+
 
 if (apiUrl) {
     axios.defaults.baseURL = apiUrl;
