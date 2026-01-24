@@ -73,7 +73,7 @@ export default function Privacy() {
 
                         <h3 className="text-xl font-bold text-slate-900 mt-8">4. Seus Direitos</h3>
                         <p>
-                            Você pode, a qualquer momento, solicitar a exclusão de todos os seus dados e histórico de conversas através do painel de controle (Configurações > Zona de Perigo) ou enviando um comando <code>/reset</code> no chat.
+                            Você pode, a qualquer momento, solicitar a exclusão de todos os seus dados e histórico de conversas através do painel de controle (Configurações &gt; Zona de Perigo) ou enviando um comando <code>/reset</code> no chat.
                         </p>
 
                         <div className="mt-12 pt-8 border-t border-slate-100 text-sm text-slate-500">
