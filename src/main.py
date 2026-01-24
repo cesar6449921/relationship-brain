@@ -25,6 +25,12 @@ import time
 import asyncio
 import os
 from jose import JWTError, jwt
+from mediation import (
+    analyze_conflict_level,
+    should_mediate,
+    generate_mediation_prompt,
+    is_manual_mediation_trigger
+)
 
 # Setup logging
 setup_logging()
@@ -481,12 +487,6 @@ async def process_webhook_task(data: dict):
                             push_name = user_owner.full_name.split()[0]  # Pega só o primeiro nome
             
             # --- MEDIAÇÃO ATIVA ---
-            from mediation import (
-                analyze_conflict_level,
-                should_mediate,
-                generate_mediation_prompt,
-                is_manual_mediation_trigger
-            )
             
             mediation_triggered = False
             if couple_context and couple_db_record:
