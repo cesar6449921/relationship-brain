@@ -1,11 +1,11 @@
 import os
 import httpx
 from tenacity import (
-    retry,
     stop_after_attempt,
     wait_exponential,
     retry_if_exception_type,
 )
+import base64
 from logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -301,7 +301,7 @@ async def send_text_human(remote_jid: str, text: str, mentions: list[str] = None
         await send_text(remote_jid, chunk, mentions)
 
 
-async def create_whatsapp_group(subject: str, participants: list[str]) -> str:
+async def create_whatsapp_group(subject: str, participants: list[str], description: str = None) -> str::
     """
     Cria um grupo no WhatsApp com os participantes iniciais.
     Retorna o JID do grupo criado (ex: 123456@g.us).
@@ -316,11 +316,15 @@ async def create_whatsapp_group(subject: str, participants: list[str]) -> str:
     log = logger.bind(subject=subject, participants=participants)
     
     log.info("creating_whatsapp_group")
+    
+    # Descrição padrão caso não seja fornecida
+    if not description:
+        description = "Seu espaço seguro de mediação e conexão. NósAi"
 
     payload = {
         "subject": subject,
         "participants": participants,
-        "description": "Grupo de Mediação Guiada por IA - NósAi"
+        "description": description
     }
     
     headers = {"apikey": EVOLUTION_API_KEY, "Content-Type": "application/json"}
@@ -346,3 +350,42 @@ async def create_whatsapp_group(subject: str, participants: list[str]) -> str:
         except Exception as e:
             log.error("evolution_api_group_error", error=str(e))
             return None
+
+async def update_group_picture(group_jid: str, image_path: str):
+    """
+    Atualiza a foto do grupo usando uma imagem local.
+    """
+    # --- MOCK LOGIC ---
+    if os.getenv("MOCK_WHATSAPP", "false").lower() == "true":
+         logger.warning("MOCK_MODE: Skipping update_group_picture")
+         return
+    # ------------------
+
+    if not os.path.exists(image_path):
+        logger.error("group_picture_file_not_found", path=image_path)
+        return
+
+    try:
+        with open(image_path, "rb") as img_file:
+            b64_image = base64.b64encode(img_file.read()).decode("utf-8")
+        
+        # O endpoint exato pode variar dependendo da versão, 
+        # mas geralmente é /group/updatePicture/{instance}
+        url = f"{EVOLUTION_URL}/group/updatePicture/{INSTANCE_NAME}"
+        
+        payload = {
+            "number": group_jid,
+            "picture": b64_image
+        }
+        
+        headers = {"apikey": EVOLUTION_API_KEY, "Content-Type": "application/json"}
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(url, json=payload, headers=headers)
+            if response.status_code == 200:
+                logger.info("group_picture_updated_success", group_jid=group_jid)
+            else:
+                logger.error("group_picture_update_failed", status=response.status_code, body=response.text)
+                
+    except Exception as e:
+        logger.error("update_group_picture_error", error=str(e))

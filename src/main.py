@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Imports Locais
-from services import process_message, send_text, send_text_human, create_whatsapp_group
+from services import process_message, send_text, send_text_human, create_whatsapp_group, update_group_picture
 from logging_config import setup_logging, get_logger
 from database import create_db_and_tables, get_session, engine
 from models import User, UserCreate, UserUpdate, Couple, CoupleCreate, CoupleRead
@@ -365,10 +365,22 @@ async def create_couple(
     
     
     # 1. Cria grupo via Evolution API (ou Mock se MOCK_WHATSAPP=true)
-    group_jid = await create_whatsapp_group(subject, participants)
+    description = "Seu espaço seguro de mediação e conexão. NósAi"
+    group_jid = await create_whatsapp_group(subject, participants, description=description)
     
     if not group_jid:
         raise HTTPException(status_code=500, detail="Failed to create WhatsApp group via Bot")
+
+    # 1.5. Atualiza a foto do grupo (Branding)
+    try:
+        # Caminho relativo a partir da raiz do projeto
+        image_path = os.path.join("frontend", "logos", "logo-grupo-criar.png")
+        if os.path.exists(image_path):
+            await update_group_picture(group_jid, image_path)
+        else:
+            logger.warning("group_image_not_found", path=image_path)
+    except Exception as e:
+        logger.error("failed_to_update_group_picture", error=str(e))
 
     # 2. Salva no banco
     db_couple = Couple(

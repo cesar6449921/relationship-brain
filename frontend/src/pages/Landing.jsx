@@ -74,13 +74,7 @@ export default function Landing() {
 
                     {/* Hero Content */}
                     <div className="text-center lg:text-left space-y-8">
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-50 border border-brand-100 text-brand-700 text-sm font-semibold mx-auto lg:mx-0 w-fit">
-                            <span className="relative flex h-2.5 w-2.5">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-500"></span>
-                            </span>
-                            Nova IA de Mediação v2.0
-                        </div>
+
 
                         <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
                             Sua relação mais forte com <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-purple-600">Mediação Guiada por IA</span>
@@ -89,6 +83,11 @@ export default function Landing() {
                         <p className="text-xl text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
                             O primeiro mediador de bolso que vive no <strong>WhatsApp</strong> do casal.
                             Mediação de conflitos em tempo real, exercícios de conexão e privacidade total.
+                        </p>
+
+                        {/* Disclaimer de Compliance */}
+                        <p className="text-sm text-slate-500 max-w-xl mx-auto lg:mx-0 italic">
+                            💡 Ferramenta de mediação e coaching de relacionamento. Não substitui aconselhamento profissional.
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
@@ -213,9 +212,7 @@ export default function Landing() {
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="flex flex-col md:flex-row gap-16 items-center">
                         <div className="md:w-1/2 space-y-8">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm font-medium">
-                                <Zap className="w-4 h-4" /> Funcionalidades Premium
-                            </div>
+
                             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900">
                                 Muito mais que um Chatbot.<br />
                                 Um <span className="text-brand-600">Mediador Ativo</span>.
@@ -309,7 +306,11 @@ export default function Landing() {
                     <h2 className="text-3xl font-bold text-center mb-12 text-slate-900">Perguntas Frequentes</h2>
                     <div className="space-y-4">
                         <FaqItem q="A IA lê minhas mensagens privadas?" a="Não. A IA só tem acesso às mensagens enviadas no grupo específico do casal criado por nós. Suas conversas privadas individuais continuam 100% privadas." />
-                        <FaqItem q="Substitui um mediador humano?" a="Não. O NósAi é uma ferramenta de suporte emocional e mediação de conflitos leves a moderados. Para casos graves, traumas ou transtornos, recomendamos mediação orientação profissional." />
+                        <FaqItem
+                            q="Substitui um profissional de saúde mental?"
+                            a="Não. O NósAi é uma ferramenta de mediação e coaching de relacionamento para conflitos cotidianos leves a moderados. Não somos profissionais de saúde mental licenciados. Para casos graves, traumas, violência ou transtornos psicológicos, procure um psicólogo ou terapeuta profissional."
+                        />
+                        <FaqItem q="E se houver uma situação de emergência?" a="Se detectarmos palavras relacionadas a violência, abuso ou risco de vida, bloqueamos a mediação automática e fornecemos números de emergência (190, 180, CVV 188). Sua segurança é prioridade." />
                         <FaqItem q="Posso cancelar a qualquer momento?" a="Sim. Sem contratos de fidelidade para o plano mensal. Você cancela com um clique no painel." />
                         <FaqItem q="Funciona em qualquer celular?" a="Sim! Se você tem WhatsApp, você pode usar o NósAi. Não precisa instalar nenhum aplicativo extra." />
                     </div>
@@ -340,8 +341,13 @@ export default function Landing() {
                             <a href="#" className="hover:text-brand-600">Contato</a>
                         </div>
                     </div>
-                    <div className="text-center text-xs text-slate-400 pt-8 border-t border-slate-200">
-                        &copy; {new Date().getFullYear()} NósAi Tecnologia LTDA. Todos os direitos reservados.
+                    <div className="text-center text-xs text-slate-400 pt-8 border-t border-slate-200 space-y-2">
+                        <p>&copy; {new Date().getFullYear()} NósAi Tecnologia LTDA. Todos os direitos reservados.</p>
+                        <p className="text-slate-500 max-w-3xl mx-auto leading-relaxed">
+                            <strong>Aviso Legal:</strong> NósAi é uma ferramenta de mediação e coaching de relacionamento baseada em IA.
+                            Não somos profissionais de saúde mental licenciados e não oferecemos diagnósticos clínicos ou tratamento médico.
+                            Para situações graves, procure um psicólogo, terapeuta ou profissional de saúde mental qualificado.
+                        </p>
                     </div>
                 </div>
             </footer>
