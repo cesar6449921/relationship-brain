@@ -17,10 +17,11 @@ export default function Landing() {
                     <div className="flex justify-between h-16 items-center">
                         {/* Logo */}
                         <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
-                            <div className="bg-gradient-to-tr from-brand-500 to-purple-600 p-2 rounded-xl text-white">
-                                <Heart className="h-5 w-5 fill-current" />
-                            </div>
-                            <span className="font-bold text-xl tracking-tight text-slate-900">NósAi<span className="text-brand-600">.ai</span></span>
+                            <Heart className="h-7 w-7 text-brand-600 fill-current" />
+                            <span className="font-display font-bold text-2xl tracking-tight">
+                                <span className="text-brand-600">Nós</span>
+                                <span className="text-brand-900">Ai</span>
+                            </span>
                         </div>
 
                         {/* Desktop Menu */}
@@ -339,10 +340,11 @@ export default function Landing() {
                     <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-8">
                         <div>
                             <div className="flex items-center gap-2 mb-4">
-                                <div className="bg-brand-600 p-1.5 rounded-lg text-white">
-                                    <Heart className="h-4 w-4 fill-current" />
-                                </div>
-                                <span className="font-bold text-lg text-slate-900">NósAi</span>
+                                <Heart className="h-6 w-6 text-brand-600 fill-current" />
+                                <span className="font-display font-bold text-xl">
+                                    <span className="text-brand-600">Nós</span>
+                                    <span className="text-brand-900">Ai</span>
+                                </span>
                             </div>
                             <p className="text-slate-500 text-sm max-w-xs">
                                 Inteligência Artificial a favor do amor. <br />

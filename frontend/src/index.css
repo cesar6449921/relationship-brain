@@ -3,6 +3,8 @@
 @tailwind utilities;
 
 body {
-  @apply bg-slate-50 text-slate-900;
-  font-family: 'Inter', sans-serif;
+  @apply bg-neutral-offwhite text-brand-900 font-sans;
+}
+h1, h2, h3, h4, h5, h6 {
+  @apply font-display text-brand-900;
 }
