@@ -91,7 +91,7 @@ const Register = () => {
             <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
                 <Link to="/" className="inline-flex items-center gap-2 text-brand-600 font-bold text-2xl">
                     <Heart className="h-8 w-8 fill-current" />
-                    <span>NósDois.ai</span>
+                    <span>NósAi</span>
                 </Link>
                 <h2 className="mt-6 text-3xl font-extrabold text-slate-900">
                     Comece sua jornada a dois

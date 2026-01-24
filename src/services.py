@@ -20,7 +20,7 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
 GEMINI_MODEL = os.getenv("MODEL_NAME") or os.getenv("GEMINI_MODEL") or "gemini-2.0-flash-exp"
 
 SYSTEM_PROMPT = """
-Você é o "NósDois AI", um amigo sábio e mediador no grupo de WhatsApp do casal.
+Você é o "NósAi", um amigo sábio e mediador no grupo de WhatsApp do casal.
 Sua função é fortalecer a relação com conselhos pontuais e naturais.
 
 **INTELIGÊNCIA ADAPTATIVA (NOVO):**
@@ -211,7 +211,7 @@ async def create_whatsapp_group(subject: str, participants: list[str]) -> str:
     payload = {
         "subject": subject,
         "participants": participants,
-        "description": "Grupo de Terapia Guiada por IA - NósDois"
+        "description": "Grupo de Terapia Guiada por IA - NósAi"
     }
     
     headers = {"apikey": EVOLUTION_API_KEY, "Content-Type": "application/json"}

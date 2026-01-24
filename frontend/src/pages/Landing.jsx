@@ -20,7 +20,7 @@ export default function Landing() {
                             <div className="bg-gradient-to-tr from-brand-500 to-purple-600 p-2 rounded-xl text-white">
                                 <Heart className="h-5 w-5 fill-current" />
                             </div>
-                            <span className="font-bold text-xl tracking-tight text-slate-900">NósDois<span className="text-brand-600">.ai</span></span>
+                            <span className="font-bold text-xl tracking-tight text-slate-900">NósAi<span className="text-brand-600">.ai</span></span>
                         </div>
 
                         {/* Desktop Menu */}
@@ -119,7 +119,7 @@ export default function Landing() {
                                     <Heart className="w-6 h-6 text-white fill-current" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-sm">NósDois.ai & Casal</h3>
+                                    <h3 className="font-bold text-sm">NósAi & Casal</h3>
                                     <p className="text-[10px] opacity-80">Online agora</p>
                                 </div>
                             </div>
@@ -140,7 +140,7 @@ export default function Landing() {
 
                                 {/* Message 3: AI Intervention */}
                                 <div className="self-center my-4 bg-slate-100 px-3 py-1 rounded-full text-[10px] text-slate-500 font-medium">
-                                    NósDois.ai está digitando...
+                                    NósAi está digitando...
                                 </div>
 
                                 <div className="self-start bg-gradient-to-br from-brand-50 to-white p-4 rounded-xl shadow-md border border-brand-100 w-full relative overflow-hidden">
@@ -238,7 +238,7 @@ export default function Landing() {
                                 Um <span className="text-brand-600">Terapeuta Ativo</span>.
                             </h2>
                             <p className="text-lg text-slate-600 leading-relaxed">
-                                A maioria dos apps de casal são passivos. O NósDois.ai é <strong>ativo</strong>. Ele percebe o tom da conversa, identifica gatilhos emocionais e intervém antes que a briga escale.
+                                A maioria dos apps de casal são passivos. O NósAi é <strong>ativo</strong>. Ele percebe o tom da conversa, identifica gatilhos emocionais e intervém antes que a briga escale.
                             </p>
 
                             <ul className="space-y-4">
@@ -326,9 +326,9 @@ export default function Landing() {
                     <h2 className="text-3xl font-bold text-center mb-12 text-slate-900">Perguntas Frequentes</h2>
                     <div className="space-y-4">
                         <FaqItem q="A IA lê minhas mensagens privadas?" a="Não. A IA só tem acesso às mensagens enviadas no grupo específico do casal criado por nós. Suas conversas privadas individuais continuam 100% privadas." />
-                        <FaqItem q="Substitui um terapeuta humano?" a="Não. O NósDois.ai é uma ferramenta de suporte emocional e mediação de conflitos leves a moderados. Para casos graves, traumas ou transtornos, recomendamos terapia clínica profissional." />
+                        <FaqItem q="Substitui um terapeuta humano?" a="Não. O NósAi é uma ferramenta de suporte emocional e mediação de conflitos leves a moderados. Para casos graves, traumas ou transtornos, recomendamos terapia clínica profissional." />
                         <FaqItem q="Posso cancelar a qualquer momento?" a="Sim. Sem contratos de fidelidade para o plano mensal. Você cancela com um clique no painel." />
-                        <FaqItem q="Funciona em qualquer celular?" a="Sim! Se você tem WhatsApp, você pode usar o NósDois.ai. Não precisa instalar nenhum aplicativo extra." />
+                        <FaqItem q="Funciona em qualquer celular?" a="Sim! Se você tem WhatsApp, você pode usar o NósAi. Não precisa instalar nenhum aplicativo extra." />
                     </div>
                 </div>
             </section>
@@ -342,7 +342,7 @@ export default function Landing() {
                                 <div className="bg-brand-600 p-1.5 rounded-lg text-white">
                                     <Heart className="h-4 w-4 fill-current" />
                                 </div>
-                                <span className="font-bold text-lg text-slate-900">NósDois.ai</span>
+                                <span className="font-bold text-lg text-slate-900">NósAi</span>
                             </div>
                             <p className="text-slate-500 text-sm max-w-xs">
                                 Inteligência Artificial a favor do amor. <br />
@@ -357,7 +357,7 @@ export default function Landing() {
                         </div>
                     </div>
                     <div className="text-center text-xs text-slate-400 pt-8 border-t border-slate-200">
-                        &copy; {new Date().getFullYear()} NósDois AI Tecnologia LTDA. Todos os direitos reservados.
+                        &copy; {new Date().getFullYear()} NósAi Tecnologia LTDA. Todos os direitos reservados.
                     </div>
                 </div>
             </footer>

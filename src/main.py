@@ -384,7 +384,7 @@ async def create_couple(
     
     # TODO: Mandar mensagem de boas-vindas no grupo recém-criado
     try:
-        await send_text(group_jid, f"Olá {current_user.full_name} e {couple_data.partner_name}! Eu sou o NósDois AI, seu terapeuta virtual. 🌱\n\nEstou aqui para ajudar vocês a fortalecerem a relação. Sintam-se à vontade para conversar comigo aqui!")
+        await send_text(group_jid, f"Olá {current_user.full_name} e {couple_data.partner_name}! Eu sou o NósAi, seu terapeuta virtual. 🌱\n\nEstou aqui para ajudar vocês a fortalecerem a relação. Sintam-se à vontade para conversar comigo aqui!")
     except Exception as e:
         logger.error("failed_to_send_welcome_message", error=str(e))
         pass
@@ -457,7 +457,7 @@ async def process_webhook_task(data: dict):
 
             if is_group:
                 # 1. Verifica Triggers (Texto)
-                triggers = ["/ia", "/ajuda", "nósdois", "nosdois", "bot", "terapeuta", "inteligencia", "inteligência"]
+                triggers = ["/ia", "/ajuda", "nosai", "nosai", "bot", "terapeuta", "inteligencia", "inteligência"]
                 user_text_lower = user_text.lower()
                 is_text_triggered = any(t in user_text_lower for t in triggers)
                 

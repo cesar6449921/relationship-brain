@@ -112,7 +112,7 @@ def generate_mediation_prompt(
         for msg in recent_messages[-5:]  # Últimas 5 mensagens
     ])
     
-    prompt = f"""Você é o NósDois.ai, um terapeuta de casal empático e não-julgador.
+    prompt = f"""Você é o NósAi, um terapeuta de casal empático e não-julgador.
 
 SITUAÇÃO ATUAL:
 Você detectou sinais de conflito entre {partner_1_name} e {partner_2_name}.

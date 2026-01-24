@@ -117,7 +117,7 @@ export default function Dashboard() {
                 <nav className="bg-white border-b border-slate-200 px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-brand-600 font-bold text-xl">
                         <Heart className="h-6 w-6 fill-current" />
-                        <span>NósDois.ai</span>
+                        <span>NósAi</span>
                     </div>
                     <div className="flex items-center gap-4">
                         <span className="text-slate-600 text-sm hidden sm:inline">Olá, {userData?.full_name?.split(' ')[0]}</span>
@@ -196,7 +196,7 @@ export default function Dashboard() {
             <nav className="bg-white border-b border-slate-200 px-6 h-16 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-brand-600 font-bold text-xl">
                     <Heart className="h-6 w-6 fill-current" />
-                    <span>NósDois.ai</span>
+                    <span>NósAi</span>
                 </div>
                 <button onClick={handleLogout} className="text-slate-500 hover:text-slate-800 flex items-center gap-2">
                     <LogOut className="h-4 w-4" /> Sair

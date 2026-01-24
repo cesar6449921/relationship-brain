@@ -20,7 +20,7 @@ export default function Sidebar() {
             <div className="h-16 flex items-center px-6 border-b border-slate-200">
                 <div className="flex items-center gap-2 text-brand-600 font-bold text-xl">
                     <Heart className="h-6 w-6 fill-current" />
-                    <span>NósDois.ai</span>
+                    <span>NósAi</span>
                 </div>
             </div>
 

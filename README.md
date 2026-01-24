@@ -1,4 +1,4 @@
-# 💑 NósDois AI - Terapeuta de Casais Inteligente
+# 💑 NósAi - Terapeuta de Casais Inteligente
 
 Bot de WhatsApp especializado em terapia de casais, utilizando Gemini 2.0 Flash para oferecer suporte empático e profissional.
 

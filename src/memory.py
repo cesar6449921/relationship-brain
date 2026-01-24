@@ -50,7 +50,7 @@ class ConversationManager:
         session["history"].append({
             "role": role, # 'user' ou 'model'
             "content": content,
-            "name": user_name if role == "user" else "NósDois AI",
+            "name": user_name if role == "user" else "NósAi",
             "timestamp": time.time()
         })
 
