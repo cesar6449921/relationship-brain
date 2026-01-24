@@ -28,7 +28,7 @@ git push
    ```env
    EVOLUTION_URL=http://evolution-api:8080   <-- Use o endereço interno do Docker aqui!
    EVOLUTION_API_KEY=sua_chave_real
-   INSTANCE_NAME=test-bot-2
+   INSTANCE_NAME=NosAi-Bot1
    GOOGLE_API_KEY=sua_chave_gemini
    SECRET_KEY=sua_chave_secreta
    MOCK_WHATSAPP=false  <-- Para funcionar de verdade

@@ -7,7 +7,7 @@ EVOLUTION_URL = os.getenv("EVOLUTION_URL")
 EVOLUTION_API_KEY = os.getenv("EVOLUTION_API_KEY")
 # URL do Bot na nuvem (Cloud Run ou EasyPanel domain)
 BOT_URL = os.getenv("BOT_URL")
-INSTANCE_NAME = os.getenv("INSTANCE_NAME", "test-bot-2")
+INSTANCE_NAME = os.getenv("INSTANCE_NAME", "NosAi-Bot1")
 
 if not all([EVOLUTION_URL, EVOLUTION_API_KEY, BOT_URL]):
     print(
