@@ -48,6 +48,17 @@ export default function Dashboard() {
     };
 
     const onSubmit = async (data) => {
+        // Validação: Verifica se o usuário tem número de telefone cadastrado
+        if (!userData?.phone_number || userData.phone_number.trim() === '') {
+            alert(
+                '⚠️ Número de WhatsApp não cadastrado!\n\n' +
+                'Para criar um grupo, você precisa adicionar seu número de WhatsApp nas Configurações.\n\n' +
+                'Vá em: Configurações → WhatsApp → Salvar'
+            );
+            navigate('/settings');
+            return;
+        }
+
         setCreateLoading(true);
         try {
             const token = localStorage.getItem('token');
@@ -57,7 +68,8 @@ export default function Dashboard() {
             setSuccess(true);
             fetchMyInfo(); // Refresh to get the new couple data
         } catch (err) {
-            alert('Erro ao criar o grupo. Verifique os dados e tente novamente.');
+            const errorMsg = err.response?.data?.detail || 'Erro ao criar o grupo. Verifique os dados e tente novamente.';
+            alert(errorMsg);
         } finally {
             setCreateLoading(false);
         }

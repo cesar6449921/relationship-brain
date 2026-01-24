@@ -321,6 +321,13 @@ async def create_couple(
     """
     logger.info("creating_couple_flow", user=current_user.email)
     
+    # Validação: Verifica se o usuário tem número de telefone
+    if not current_user.phone_number or current_user.phone_number.strip() == "":
+        raise HTTPException(
+            status_code=400, 
+            detail="Você precisa adicionar seu número de WhatsApp nas Configurações antes de criar um grupo."
+        )
+    
     # 1. Cria grupo via Evolution API
     subject = f"Casal {current_user.full_name.split()[0]} & {couple_data.partner_name.split()[0]}"
     participants = [current_user.phone_number, couple_data.partner_phone]
@@ -330,6 +337,10 @@ async def create_couple(
     cleaned_participants = []
     for p in participants:
         num = p.replace("+", "").strip()
+        
+        # Ignora strings vazias
+        if not num:
+            continue
         
         # Estratégia "Tiro de Canhão": Envia com e sem o 9º dígito para garantir
         if num.startswith("55"):
@@ -346,9 +357,12 @@ async def create_couple(
             else:
                 cleaned_participants.append(num)
         else:
+            # Números internacionais (não BR)
             cleaned_participants.append(num)
 
-    participants = list(set(cleaned_participants))
+    # Remove duplicatas e strings vazias
+    participants = [p for p in list(set(cleaned_participants)) if p]
+    
     
     # 1. Cria grupo via Evolution API (ou Mock se MOCK_WHATSAPP=true)
     group_jid = await create_whatsapp_group(subject, participants)
