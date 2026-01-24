@@ -351,8 +351,8 @@ export default function Landing() {
                         </div>
                         <div className="flex gap-8 text-sm text-slate-600">
                             <Link to="/login" className="hover:text-brand-600">Login</Link>
-                            <a href="#" className="hover:text-brand-600">Termos de Uso</a>
-                            <a href="#" className="hover:text-brand-600">Privacidade</a>
+                            <Link to="/terms" className="hover:text-brand-600">Termos de Uso</Link>
+                            <Link to="/privacy" className="hover:text-brand-600">Privacidade</Link>
                             <a href="#" className="hover:text-brand-600">Contato</a>
                         </div>
                     </div>
