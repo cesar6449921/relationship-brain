@@ -356,37 +356,57 @@ async def update_group_picture(group_jid: str, image_path: str):
     """
     Atualiza a foto do grupo usando uma imagem local.
     """
+    log = logger.bind(group_jid=group_jid, image_path=image_path)
+    print(f"[DEBUG] update_group_picture called for {group_jid}")
+    
     # --- MOCK LOGIC ---
     if os.getenv("MOCK_WHATSAPP", "false").lower() == "true":
-         logger.warning("MOCK_MODE: Skipping update_group_picture")
+         log.warning("MOCK_MODE: Skipping update_group_picture")
+         print("[DEBUG] MOCK MODE - Skipping")
          return
     # ------------------
 
     if not os.path.exists(image_path):
-        logger.error("group_picture_file_not_found", path=image_path)
+        log.error("group_picture_file_not_found")
+        print(f"[DEBUG] Image file not found: {image_path}")
         return
 
     try:
+        log.info("reading_image_file")
+        print(f"[DEBUG] Reading image from {image_path}")
         with open(image_path, "rb") as img_file:
             b64_image = base64.b64encode(img_file.read()).decode("utf-8")
         
-        # O endpoint exato pode variar dependendo da versão, 
-        # mas geralmente é /group/updatePicture/{instance}
-        url = f"{EVOLUTION_URL}/group/updatePicture/{INSTANCE_NAME}"
+        log.info("image_encoded_to_base64", size_bytes=len(b64_image))
+        print(f"[DEBUG] Image encoded, size: {len(b64_image)} bytes")
+        
+        # Endpoint da Evolution API para atualizar foto de grupo
+        # Pode variar: /group/updatePicture ou /group/updateGroupPicture
+        url = f"{EVOLUTION_URL}/group/updateGroupPicture/{INSTANCE_NAME}"
         
         payload = {
-            "number": group_jid,
-            "picture": b64_image
+            "groupJid": group_jid,
+            "image": b64_image
         }
         
         headers = {"apikey": EVOLUTION_API_KEY, "Content-Type": "application/json"}
         
+        log.info("sending_picture_update_request", url=url)
+        print(f"[DEBUG] Sending PUT request to {url}")
+        
         async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.post(url, json=payload, headers=headers)
-            if response.status_code == 200:
-                logger.info("group_picture_updated_success", group_jid=group_jid)
+            response = await client.put(url, json=payload, headers=headers)
+            log.info("picture_update_response", status=response.status_code)
+            print(f"[DEBUG] Response status: {response.status_code}")
+            print(f"[DEBUG] Response body: {response.text}")
+            
+            if response.status_code in (200, 201):
+                log.info("group_picture_updated_success")
+                print("[DEBUG] Picture updated successfully!")
             else:
-                logger.error("group_picture_update_failed", status=response.status_code, body=response.text)
+                log.error("group_picture_update_failed", status=response.status_code, body=response.text)
+                print(f"[DEBUG] Picture update FAILED: {response.status_code} - {response.text}")
                 
     except Exception as e:
-        logger.error("update_group_picture_error", error=str(e))
+        log.error("update_group_picture_error", error=str(e), exc_info=True)
+        print(f"[DEBUG] Exception occurred: {e}")

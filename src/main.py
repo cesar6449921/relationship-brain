@@ -371,16 +371,30 @@ async def create_couple(
     if not group_jid:
         raise HTTPException(status_code=500, detail="Failed to create WhatsApp group via Bot")
 
-    # 1.5. Atualiza a foto do grupo (Branding)
-    try:
-        # Caminho relativo a partir da raiz do projeto
-        image_path = os.path.join("frontend", "logos", "logo-grupo-criar.png")
-        if os.path.exists(image_path):
-            await update_group_picture(group_jid, image_path)
-        else:
-            logger.warning("group_image_not_found", path=image_path)
-    except Exception as e:
-        logger.error("failed_to_update_group_picture", error=str(e))
+    # TODO: Atualizar foto do grupo quando migrar para WhatsApp Cloud API
+    # A Evolution API v2.3.7 não suporta atualização de foto de grupo via API
+    # Por enquanto, a foto deve ser atualizada manualmente pelo WhatsApp
+    # Referência: Todos os endpoints testados retornaram 404
+    # Ver: scripts/test_update_picture_final.py para detalhes dos testes
+    
+    # DESABILITADO TEMPORARIAMENTE
+    # print(f"[DEBUG MAIN] Attempting to update group picture for {group_jid}")
+    # try:
+    #     image_path = os.path.join("frontend", "logos", "logo-grupo-criar.png")
+    #     print(f"[DEBUG MAIN] Image path: {image_path}")
+    #     print(f"[DEBUG MAIN] Image exists: {os.path.exists(image_path)}")
+    #     if os.path.exists(image_path):
+    #         print(f"[DEBUG MAIN] Calling update_group_picture...")
+    #         await update_group_picture(group_jid, image_path)
+    #         print(f"[DEBUG MAIN] update_group_picture call completed")
+    #     else:
+    #         logger.warning("group_image_not_found", path=image_path)
+    #         print(f"[DEBUG MAIN] Image NOT found at {image_path}")
+    # except Exception as e:
+    #     logger.error("failed_to_update_group_picture", error=str(e))
+    #     print(f"[DEBUG MAIN] Exception in update_group_picture: {e}")
+    #     import traceback
+    #     traceback.print_exc()
 
     # 2. Salva no banco
     db_couple = Couple(
