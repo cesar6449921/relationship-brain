@@ -1,10 +1,10 @@
-# 💑 NósAi - Terapeuta de Casais Inteligente
+# 💑 NósAi - Mediador de Casais Inteligente
 
-Bot de WhatsApp especializado em terapia de casais, utilizando Gemini 2.0 Flash para oferecer suporte empático e profissional.
+Bot de WhatsApp especializado em mediação de casais, utilizando Gemini 2.0 Flash para oferecer suporte empático e profissional.
 
 ## 🎯 Funcionalidades
 
-- ✅ **Terapia de Casais Automatizada**: Respostas empáticas baseadas em 15 anos de experiência simulada
+- ✅ **Mediação de Casais Automatizada**: Respostas empáticas baseadas em 15 anos de experiência simulada
 - ✅ **Memória de Contexto**: Lembra das últimas 20 mensagens de cada conversa
 - ✅ **IA de Última Geração**: Powered by Google Gemini 2.0 Flash Experimental
 - ✅ **Integração WhatsApp**: Via Evolution API
@@ -106,7 +106,7 @@ PORT=8000
 
 1. **Recepção**: Webhook recebe mensagens da Evolution API
 2. **Contexto**: Sistema recupera histórico de conversa (últimas 20 mensagens)
-3. **Processamento**: Gemini 2.0 gera resposta empática baseada no prompt de terapeuta
+3. **Processamento**: Gemini 2.0 gera resposta empática baseada no prompt de mediador
 4. **Resposta**: Mensagem é enviada de volta via Evolution API
 5. **Memória**: Conversa é armazenada para contexto futuro
 

@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Imports Locais
-from services import process_message, send_text, create_whatsapp_group
+from services import process_message, send_text, send_text_human, create_whatsapp_group
 from logging_config import setup_logging, get_logger
 from database import create_db_and_tables, get_session, engine
 from models import User, UserCreate, UserUpdate, Couple, CoupleCreate, CoupleRead
@@ -384,7 +384,7 @@ async def create_couple(
     
     # TODO: Mandar mensagem de boas-vindas no grupo recém-criado
     try:
-        await send_text(group_jid, f"Olá {current_user.full_name} e {couple_data.partner_name}! Eu sou o NósAi, seu terapeuta virtual. 🌱\n\nEstou aqui para ajudar vocês a fortalecerem a relação. Sintam-se à vontade para conversar comigo aqui!")
+        await send_text(group_jid, f"Olá {current_user.full_name} e {couple_data.partner_name}! Eu sou o NósAi, seu mediador virtual. 🌱\n\nEstou aqui para ajudar vocês a fortalecerem a relação. Sintam-se à vontade para conversar comigo aqui!")
     except Exception as e:
         logger.error("failed_to_send_welcome_message", error=str(e))
         pass
@@ -457,7 +457,7 @@ async def process_webhook_task(data: dict):
 
             if is_group:
                 # 1. Verifica Triggers (Texto)
-                triggers = ["/ia", "/ajuda", "nosai", "nosai", "bot", "terapeuta", "inteligencia", "inteligência"]
+                triggers = ["/ia", "/ajuda", "nosai", "nosai", "bot", "mediador", "inteligencia", "inteligência"]
                 user_text_lower = user_text.lower()
                 is_text_triggered = any(t in user_text_lower for t in triggers)
                 
@@ -548,40 +548,9 @@ async def process_webhook_task(data: dict):
                 
                 ai_response = await process_message(user_text, push_name, remote_jid, couple_context)
                 
-                # SUPORTE A MENSAGENS PICADAS (<QUEBRA>)
-                messages = ai_response.split("<QUEBRA>")
-                for i, msg in enumerate(messages):
-                    msg = msg.strip()
-                    if not msg: continue
-                    
-                    # Processamento de Menções (Nome -> @Numero)
-                    mentions_list = []
-                    if couple_context:
-                        # Helper para substituir nome por menção
-                        def process_mention(text, name, phone):
-                            if name and phone and name.lower() in text.lower():
-                                # Estratégia simples: Replace case-insensitive
-                                import re
-                                pattern = re.compile(re.escape(name), re.IGNORECASE)
-                                # Apenas substitui se encontrar. O WhatsApp precisa do formato @55...
-                                # Mas cuidado para não substituir se já tiver @
-                                text = pattern.sub(f"@{phone}", text)
-                                mentions_list.append(phone)
-                            return text
-
-                        p_name = couple_context.get("partner_name", "").split()[0] # Primeiro nome
-                        p_phone = couple_context.get("partner_phone", "")
-                        u_name = couple_context.get("user_name", "").split()[0]
-                        u_phone = couple_context.get("user_phone", "")
-
-                        msg = process_mention(msg, p_name, p_phone)
-                        msg = process_mention(msg, u_name, u_phone)
-
-                    await send_text(remote_jid, msg, mentions=mentions_list)
-                    
-                    # Se não for a última mensagem, espera um pouco para dar efeito de "digitando"
-                    if i < len(messages) - 1:
-                        await asyncio.sleep(2) # Pausa de 2 segundos entre balões
+                # Envia resposta com delay humano e quebra automática
+                # send_text_human já processa <QUEBRA>, calcula delays e envia múltiplos balões
+                await send_text_human(remote_jid, ai_response)
                 
                 # Atualiza timestamp da última resposta
                 last_bot_reply_time[remote_jid] = datetime.utcnow()

@@ -26,7 +26,7 @@ export default function Privacy() {
 
                     <div className="prose prose-slate max-w-none text-slate-600 space-y-6">
                         <p className="text-lg">
-                            Sua privacidade é fundamental para o <strong>NósAi</strong>. Esta política descreve como coletamos, usamos e protegemos suas informações pessoais ao utilizar nosso assistente de terapia de casal via WhatsApp.
+                            Sua privacidade é fundamental para o <strong>NósAi</strong>. Esta política descreve como coletamos, usamos e protegemos suas informações pessoais ao utilizar nosso assistente de mediação de relacionamento via WhatsApp.
                         </p>
 
                         <div className="border-l-4 border-brand-500 pl-4 py-2 bg-brand-50 rounded-r-lg my-6">

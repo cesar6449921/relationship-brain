@@ -83,11 +83,11 @@ export default function Landing() {
                         </div>
 
                         <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
-                            Sua relação mais forte com <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-purple-600">Terapia Guiada por IA</span>
+                            Sua relação mais forte com <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-purple-600">Mediação Guiada por IA</span>
                         </h1>
 
                         <p className="text-xl text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-                            O primeiro terapeuta de bolso que vive no <strong>WhatsApp</strong> do casal.
+                            O primeiro mediador de bolso que vive no <strong>WhatsApp</strong> do casal.
                             Mediação de conflitos em tempo real, exercícios de conexão e privacidade total.
                         </p>
 
@@ -218,7 +218,7 @@ export default function Landing() {
                             </div>
                             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900">
                                 Muito mais que um Chatbot.<br />
-                                Um <span className="text-brand-600">Terapeuta Ativo</span>.
+                                Um <span className="text-brand-600">Mediador Ativo</span>.
                             </h2>
                             <p className="text-lg text-slate-600 leading-relaxed">
                                 A maioria dos apps de casal são passivos. O NósAi é <strong>ativo</strong>. Ele percebe o tom da conversa, identifica gatilhos emocionais e intervém antes que a briga escale.
@@ -309,7 +309,7 @@ export default function Landing() {
                     <h2 className="text-3xl font-bold text-center mb-12 text-slate-900">Perguntas Frequentes</h2>
                     <div className="space-y-4">
                         <FaqItem q="A IA lê minhas mensagens privadas?" a="Não. A IA só tem acesso às mensagens enviadas no grupo específico do casal criado por nós. Suas conversas privadas individuais continuam 100% privadas." />
-                        <FaqItem q="Substitui um terapeuta humano?" a="Não. O NósAi é uma ferramenta de suporte emocional e mediação de conflitos leves a moderados. Para casos graves, traumas ou transtornos, recomendamos terapia clínica profissional." />
+                        <FaqItem q="Substitui um mediador humano?" a="Não. O NósAi é uma ferramenta de suporte emocional e mediação de conflitos leves a moderados. Para casos graves, traumas ou transtornos, recomendamos mediação orientação profissional." />
                         <FaqItem q="Posso cancelar a qualquer momento?" a="Sim. Sem contratos de fidelidade para o plano mensal. Você cancela com um clique no painel." />
                         <FaqItem q="Funciona em qualquer celular?" a="Sim! Se você tem WhatsApp, você pode usar o NósAi. Não precisa instalar nenhum aplicativo extra." />
                     </div>

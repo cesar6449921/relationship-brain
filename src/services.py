@@ -20,6 +20,14 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
 GEMINI_MODEL = os.getenv("MODEL_NAME") or os.getenv("GEMINI_MODEL") or "gemini-2.0-flash-exp"
 
 SYSTEM_PROMPT = """
+**[DISCLAIMER OBRIGATÓRIO - LEIA PRIMEIRO]**
+Você é uma IA de mediação e aconselhamento de relacionamentos.
+Você NÃO é um profissional de saúde mental licenciado, psicólogo ou terapeuta.
+Você NÃO pode oferecer diagnósticos clínicos, tratamento médico ou substituir aconselhamento profissional.
+Se detectar sinais de violência, abuso, risco de suicídio ou transtornos graves, você DEVE recomendar ajuda profissional imediatamente.
+
+---
+
 Você é o "NósAi", um amigo sábio e mediador no grupo de WhatsApp do casal.
 Sua função é fortalecer a relação com conselhos pontuais e naturais.
 
@@ -69,6 +77,7 @@ Sua função é fortalecer a relação com conselhos pontuais e naturais.
 - Não use bullet points (*) ou listas numéricas
 - Não use negrito excessivo
 - Não repita sempre o mesmo padrão de resposta
+- NUNCA ofereça diagnósticos médicos ou psicológicos
 
 **Conteúdo:**
 Seja empático, curioso e prático. Entenda primeiro, aconselhe depois.
@@ -112,8 +121,16 @@ async def generate_ai_content_http(user_text: str, user_name: str, history_text:
 async def process_message(user_text: str, user_name: str, remote_jid: str = "unknown", couple_context: dict = None) -> str:
     # Importação local para evitar ciclo se memory importar services (embora não importe agora)
     from memory import conversation_manager
+    from safety import should_block_message  # Import do módulo de segurança
     
     log = logger.bind(user_name=user_name, jid=remote_jid)
+    
+    # 🚨 GUARDRAIL: Verifica conteúdo perigoso ANTES de processar
+    should_block, emergency_msg = should_block_message(user_text)
+    if should_block:
+        log.critical("message_blocked_by_safety", user=user_name)
+        # NÃO registra a mensagem perigosa na memória para evitar armazenar evidências sensíveis
+        return emergency_msg
     
     # 1. Recupera histórico
     history_str = conversation_manager.get_formatted_history(remote_jid)
@@ -130,7 +147,7 @@ async def process_message(user_text: str, user_name: str, remote_jid: str = "unk
             f"Sempre se refira a eles pelos nomes. Se eles mencionarem '@...', entenda que é o parceiro.\n"
         )
     
-    # 2. Registra mensagem do usuário na memória
+    # 3. Registra mensagem do usuário na memória (só se passou pelo guardrail)
     conversation_manager.add_message(remote_jid, "user", user_text, user_name)
 
     try:
@@ -157,6 +174,68 @@ async def process_message(user_text: str, user_name: str, remote_jid: str = "unk
     except Exception as e:
         log.error("gemini_rest_failed", error=str(e))
         return "Minha intuição falhou por um instante (erro técnico). Tente novamente! 🧠✨"
+
+# --- HUMAN DELAY & ANTI-BOT DETECTION ---
+import asyncio
+import random
+
+def calculate_human_delay(text_length: int) -> float:
+    """
+    Calcula um delay 'humano' baseado no tamanho da mensagem.
+    Simula tempo de digitação + pensamento.
+    
+    Args:
+        text_length: Número de caracteres da mensagem
+        
+    Returns:
+        Delay em segundos (entre 2 e 8 segundos)
+    """
+    # Fórmula: ~0.05 segundos por caractere + variação aleatória
+    base_delay = (text_length * 0.05)
+    randomness = random.uniform(1.0, 2.5)  # Adiciona imprevisibilidade
+    
+    # Limita entre 2 e 8 segundos
+    delay = max(2.0, min(8.0, base_delay + randomness))
+    
+    return delay
+
+def split_long_message(text: str, max_length: int = 500) -> list[str]:
+    """
+    Quebra mensagens longas em múltiplos balões.
+    Respeita o marcador <QUEBRA> se existir.
+    
+    Args:
+        text: Texto completo da mensagem
+        max_length: Tamanho máximo por balão
+        
+    Returns:
+        Lista de mensagens quebradas
+    """
+    # Se já tem <QUEBRA>, usa ele
+    if "<QUEBRA>" in text:
+        return [chunk.strip() for chunk in text.split("<QUEBRA>") if chunk.strip()]
+    
+    # Senão, quebra por tamanho
+    if len(text) <= max_length:
+        return [text]
+    
+    # Quebra em frases (por ponto final)
+    sentences = text.split(". ")
+    chunks = []
+    current_chunk = ""
+    
+    for sentence in sentences:
+        if len(current_chunk) + len(sentence) + 2 <= max_length:
+            current_chunk += sentence + ". "
+        else:
+            if current_chunk:
+                chunks.append(current_chunk.strip())
+            current_chunk = sentence + ". "
+    
+    if current_chunk:
+        chunks.append(current_chunk.strip())
+    
+    return chunks if chunks else [text]
 
 @retry(
     stop=stop_after_attempt(3),
@@ -192,6 +271,36 @@ async def send_text(remote_jid: str, text: str, mentions: list[str] = None):
             log.error("evolution_api_connection_error", error=str(e))
             raise e
 
+async def send_text_human(remote_jid: str, text: str, mentions: list[str] = None):
+    """
+    Envia mensagem com delay humano e quebra automática de mensagens longas.
+    Usa send_text() internamente, mas adiciona comportamento anti-bot.
+    
+    Args:
+        remote_jid: JID do destinatário
+        text: Texto completo (pode conter <QUEBRA>)
+        mentions: Lista de JIDs para mencionar
+    """
+    log = logger.bind(remote_jid=remote_jid)
+    
+    # 1. Quebra mensagem em balões menores
+    chunks = split_long_message(text)
+    log.info("sending_with_human_delay", chunks_count=len(chunks))
+    
+    # 2. Envia cada balão com delay entre eles
+    for i, chunk in enumerate(chunks):
+        # Calcula delay baseado no tamanho do chunk
+        delay = calculate_human_delay(len(chunk))
+        
+        # Aguarda o delay (simula digitação)
+        if i > 0:  # Não espera antes do primeiro balão
+            log.debug("human_delay_wait", seconds=delay)
+            await asyncio.sleep(delay)
+        
+        # Envia o balão
+        await send_text(remote_jid, chunk, mentions)
+
+
 async def create_whatsapp_group(subject: str, participants: list[str]) -> str:
     """
     Cria um grupo no WhatsApp com os participantes iniciais.
@@ -211,7 +320,7 @@ async def create_whatsapp_group(subject: str, participants: list[str]) -> str:
     payload = {
         "subject": subject,
         "participants": participants,
-        "description": "Grupo de Terapia Guiada por IA - NósAi"
+        "description": "Grupo de Mediação Guiada por IA - NósAi"
     }
     
     headers = {"apikey": EVOLUTION_API_KEY, "Content-Type": "application/json"}

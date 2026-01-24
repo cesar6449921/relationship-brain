@@ -35,7 +35,7 @@ export default function Terms() {
                                 <h4 className="font-bold text-amber-800 mb-1">Aviso Importante: Saída da Responsabilidade</h4>
                                 <p className="text-sm text-amber-700 m-0 leading-relaxed">
                                     O NósAi é uma ferramenta de IA para <strong>suporte e mediação de conflitos cotidianos</strong>.
-                                    Ele <strong>NÃO SUBSTITUI</strong> terapia profissional, psicólogos ou aconselhamento médico.
+                                    Ele <strong>NÃO SUBSTITUI</strong> mediação profissional, coach de relacionamentos ou aconselhamento médico.
                                     Para casos de violência doméstica, abuso ou crises graves, procure ajuda humana especializada e autoridades competentes.
                                 </p>
                             </div>
