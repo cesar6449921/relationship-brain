@@ -36,6 +36,8 @@ class CoupleBase(SQLModel):
 class Couple(CoupleBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    last_mediation_at: Optional[datetime] = Field(default=None)  # Última vez que a IA mediou
+    mediation_count: int = Field(default=0)  # Contador de mediações
 
 class CoupleCreate(SQLModel):
     partner_name: str

@@ -462,10 +462,12 @@ async def process_webhook_task(data: dict):
 
             # Busca contexto do casal no banco se for grupo
             couple_context = None
+            couple_db_record = None
             if is_group:
                 with Session(engine) as session:
                     couple = session.exec(select(Couple).where(Couple.group_jid == remote_jid)).first()
                     if couple:
+                        couple_db_record = couple  # Guardar referência para atualizar depois
                         # Precisamos buscar o User dono do casal para saber o nome dele
                         user_owner = session.get(User, couple.user_id)
                         if user_owner:
@@ -477,6 +479,53 @@ async def process_webhook_task(data: dict):
                             }
                             # CORREÇÃO CRÍTICA: Sobrescreve o apelido do WhatsApp pelo Nome Real
                             push_name = user_owner.full_name.split()[0]  # Pega só o primeiro nome
+            
+            # --- MEDIAÇÃO ATIVA ---
+            from mediation import (
+                analyze_conflict_level,
+                should_mediate,
+                generate_mediation_prompt,
+                is_manual_mediation_trigger
+            )
+            
+            mediation_triggered = False
+            if couple_context and couple_db_record:
+                # Verifica se é comando manual
+                manual_trigger = is_manual_mediation_trigger(user_text)
+                
+                # Analisa nível de conflito
+                conflict_level = analyze_conflict_level(user_text)
+                log.info("conflict_analysis", level=conflict_level, manual=manual_trigger)
+                
+                # Decide se deve mediar
+                if should_mediate(conflict_level, couple_db_record.last_mediation_at, manual_trigger):
+                    mediation_triggered = True
+                    log.info("mediation_triggered", reason="manual" if manual_trigger else "auto")
+                    
+                    # Gera prompt especializado de mediação
+                    # TODO: Implementar histórico de mensagens do grupo
+                    # Por ora, usamos apenas a mensagem atual
+                    recent_msgs = [{"sender": push_name, "text": user_text}]
+                    
+                    mediation_prompt = generate_mediation_prompt(
+                        recent_msgs,
+                        couple_context["user_name"].split()[0],
+                        couple_context["partner_name"].split()[0]
+                    )
+                    
+                    # Sobrescreve o texto do usuário com o prompt de mediação
+                    user_text = mediation_prompt
+                    should_respond = True  # Força resposta
+                    
+                    # Atualiza registro no banco
+                    with Session(engine) as session:
+                        couple_to_update = session.get(Couple, couple_db_record.id)
+                        if couple_to_update:
+                            couple_to_update.last_mediation_at = datetime.utcnow()
+                            couple_to_update.mediation_count += 1
+                            session.add(couple_to_update)
+                            session.commit()
+
 
             if should_respond:
                 # Refresh log with correct name
