@@ -301,7 +301,7 @@ async def send_text_human(remote_jid: str, text: str, mentions: list[str] = None
         await send_text(remote_jid, chunk, mentions)
 
 
-async def create_whatsapp_group(subject: str, participants: list[str], description: str = None) -> str::
+async def create_whatsapp_group(subject: str, participants: list[str], description: str = None) -> str:
     """
     Cria um grupo no WhatsApp com os participantes iniciais.
     Retorna o JID do grupo criado (ex: 123456@g.us).
