@@ -4,6 +4,7 @@ import {
     Heart, MessageCircle, Shield, ArrowRight, Check,
     Menu, X, ChevronDown, Star, Zap, Lock
 } from 'lucide-react';
+import HowItWorksAccordion from '../components/HowItWorksAccordion';
 
 export default function Landing() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -192,7 +193,9 @@ export default function Landing() {
                 </div>
             </section>
 
-            {/* --- HOW IT WORKS --- */}
+
+
+            {/* --- HOW IT WORKS (NOVA ANIMAÇÃO) --- */}
             <section id="como-funciona" className="py-24 bg-slate-50">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="text-center max-w-3xl mx-auto mb-16">
@@ -200,29 +203,8 @@ export default function Landing() {
                         <p className="text-lg text-slate-600">É tão simples quanto mandar um "Oi". Sem apps extras para baixar, tudo acontece onde vocês já conversam.</p>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-8 relative">
-                        {/* Connector Line (Desktop) */}
-                        <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-slate-200 -z-0"></div>
-
-                        <StepCard
-                            number="1"
-                            title="Cadastro Rápido"
-                            desc="Crie sua conta em 30 segundos. Só precisamos do número de telefone de vocês."
-                            icon={<Lock className="w-6 h-6 text-brand-600" />}
-                        />
-                        <StepCard
-                            number="2"
-                            title="Conexão WhatsApp"
-                            desc="Nossa IA cria um grupo seguro e criptografado só para vocês três."
-                            icon={<MessageCircle className="w-6 h-6 text-brand-600" />}
-                        />
-                        <StepCard
-                            number="3"
-                            title="Evolução Diária"
-                            desc="A IA aprende com vocês, media conflitos e envia exercícios personalizados."
-                            icon={<Heart className="w-6 h-6 text-brand-600" />}
-                        />
-                    </div>
+                    {/* Componente Interativo Accordion */}
+                    <HowItWorksAccordion />
                 </div>
             </section>
 
