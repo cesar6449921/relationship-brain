@@ -11,7 +11,7 @@ from logging_config import get_logger
 logger = get_logger(__name__)
 
 # --- Configurações Evolution ---
-EVOLUTION_URL = os.getenv("EVOLUTION_URL", "http://evolution-api:8080")
+EVOLUTION_URL = os.getenv("EVOLUTION_URL", "https://whatsapp.nosai.online")
 EVOLUTION_API_KEY = os.getenv("EVOLUTION_API_KEY")
 INSTANCE_NAME = os.getenv("INSTANCE_NAME", "NosAi-Bot1")
 
