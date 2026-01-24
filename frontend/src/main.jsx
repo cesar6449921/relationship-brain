@@ -5,6 +5,7 @@ import './index.css'
 import { BrowserRouter } from 'react-router-dom'
 import axios from 'axios'
 import { GoogleOAuthProvider } from '@react-oauth/google'
+import { AlertProvider } from './contexts/AlertContext'
 
 // Configuração Global do Axios
 // Se VITE_API_URL estiver definido (no .env ou EasyPanel), usa ele.
@@ -29,7 +30,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
         <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
             <BrowserRouter>
-                <App />
+                <AlertProvider>
+                    <App />
+                </AlertProvider>
             </BrowserRouter>
         </GoogleOAuthProvider>
     </React.StrictMode>,

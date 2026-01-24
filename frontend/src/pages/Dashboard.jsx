@@ -4,6 +4,8 @@ import axios from 'axios';
 import { Heart, Users, CheckCircle, Loader2, LogOut, MessageCircle, HeartHandshake } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+import { useAlert } from '../contexts/AlertContext';
+
 export default function Dashboard() {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const [loading, setLoading] = useState(true);
@@ -12,6 +14,7 @@ export default function Dashboard() {
     const [createLoading, setCreateLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const navigate = useNavigate();
+    const { warning, error, success: showSuccess } = useAlert(); // Novo Hook
 
     useEffect(() => {
         fetchMyInfo();
@@ -50,10 +53,9 @@ export default function Dashboard() {
     const onSubmit = async (data) => {
         // Validação: Verifica se o usuário tem número de telefone cadastrado
         if (!userData?.phone_number || userData.phone_number.trim() === '') {
-            alert(
-                '⚠️ Número de WhatsApp não cadastrado!\n\n' +
-                'Para criar um grupo, você precisa adicionar seu número de WhatsApp nas Configurações.\n\n' +
-                'Vá em: Configurações → WhatsApp → Salvar'
+            warning(
+                'WhatsApp Obrigatório ⚠️',
+                'Para criar um grupo, você precisa adicionar seu número de WhatsApp nas Configurações.'
             );
             navigate('/settings');
             return;
@@ -66,10 +68,11 @@ export default function Dashboard() {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setSuccess(true);
-            fetchMyInfo(); // Refresh to get the new couple data
+            showSuccess('Sucesso! 🎉', 'Grupo criado. Conectando com a IA...');
+            fetchMyInfo();
         } catch (err) {
-            const errorMsg = err.response?.data?.detail || 'Erro ao criar o grupo. Verifique os dados e tente novamente.';
-            alert(errorMsg);
+            const errorMsg = err.response?.data?.detail || 'Erro ao criar o grupo. Verifique os dados.';
+            error('Erro na Criação ❌', errorMsg);
         } finally {
             setCreateLoading(false);
         }

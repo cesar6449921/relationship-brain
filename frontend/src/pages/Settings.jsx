@@ -3,11 +3,13 @@ import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { Save, Loader2, User, Mail, Phone, Lock } from 'lucide-react';
 
+import { useAlert } from '../contexts/AlertContext';
+
 export default function Settings() {
     const { register, handleSubmit, setValue, formState: { errors } } = useForm();
     const [loading, setLoading] = useState(false);
     const [initialLoading, setInitialLoading] = useState(true);
-    const [message, setMessage] = useState({ type: '', text: '' });
+    const { success, error } = useAlert();
 
     useEffect(() => {
         fetchUserData();
@@ -32,18 +34,16 @@ export default function Settings() {
 
     const onSubmit = async (data) => {
         setLoading(true);
-        setMessage({ type: '', text: '' });
         try {
             const token = localStorage.getItem('token');
-            // Remove senha se estiver vazia para não tentar atualizar
             if (!data.password) delete data.password;
 
             await axios.put('/api/me', data, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setMessage({ type: 'success', text: 'Dados atualizados com sucesso!' });
+            success('Atualizado!', 'Seus dados foram salvos com sucesso.');
         } catch (err) {
-            setMessage({ type: 'error', text: 'Erro ao atualizar dados. Tente novamente.' });
+            error('Erro ao Salvar', 'Não foi possível atualizar seus dados.');
         } finally {
             setLoading(false);
         }
@@ -64,12 +64,7 @@ export default function Settings() {
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 
-                    {/* Feedback Message */}
-                    {message.text && (
-                        <div className={`p-4 rounded-lg text-sm font-medium ${message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-                            {message.text}
-                        </div>
-                    )}
+
 
                     <div className="grid grid-cols-1 gap-6">
                         {/* Nome */}
