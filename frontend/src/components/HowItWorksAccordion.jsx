@@ -2,6 +2,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lock, MessageCircle, Heart, ArrowRight } from "lucide-react";
 import NetworkAnimation from "./NetworkAnimation";
+import SecureAnimation from "./SecureAnimation";
+import GrowthAnimation from "./GrowthAnimation";
 
 // Dados dos passos
 const steps = [
@@ -11,7 +13,8 @@ const steps = [
         description: "Crie sua conta em segundos. Só precisamos do seu nome e telefone. Sem formulários chatos, tudo simplificado para você começar já.",
         icon: Lock,
         image: "https://images.unsplash.com/photo-1616077168712-fc6c788cad34?q=80&w=1000&auto=format&fit=crop",
-        color: "bg-brand-50"
+        color: "bg-brand-50",
+        Animation: SecureAnimation
     },
     {
         id: 2,
@@ -20,7 +23,7 @@ const steps = [
         icon: MessageCircle,
         image: "https://images.unsplash.com/photo-1577563908411-5077b6dc7624?q=80&w=1000&auto=format&fit=crop",
         color: "bg-brand-100",
-        hasAnimation: true // Flag para ativar a animação SVG neste card
+        Animation: NetworkAnimation
     },
     {
         id: 3,
@@ -28,7 +31,8 @@ const steps = [
         description: "A IA media conflitos em tempo real, sugere melhorias na comunicação e envia exercícios personalizados baseados nas suas conversas.",
         icon: Heart,
         image: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=1000&auto=format&fit=crop",
-        color: "bg-brand-200"
+        color: "bg-brand-200",
+        Animation: GrowthAnimation
     },
 ];
 
@@ -55,10 +59,10 @@ export default function HowItWorksAccordion() {
                         `}
                         layout
                     >
-                        {/* Animação SVG Específica para o Passo 2 (Absoluta no fundo) */}
-                        {isActive && step.hasAnimation && (
+                        {/* Animação SVG Específica (Absoluta no fundo) */}
+                        {isActive && step.Animation && (
                             <div className="absolute right-[-100px] top-1/2 -translate-y-1/2 w-[400px] h-[400px] opacity-20 pointer-events-none block">
-                                <NetworkAnimation />
+                                <step.Animation />
                             </div>
                         )}
 

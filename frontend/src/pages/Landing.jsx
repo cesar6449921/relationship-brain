@@ -5,6 +5,8 @@ import {
     Menu, X, ChevronDown, Star, Zap, Lock
 } from 'lucide-react';
 import HowItWorksAccordion from '../components/HowItWorksAccordion';
+import CoupleHeroAnimation from '../components/CoupleHeroAnimation';
+import PhoneMockup from '../components/PhoneMockup';
 
 export default function Landing() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -17,11 +19,25 @@ export default function Landing() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16 items-center">
                         {/* Logo */}
-                        <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
-                            <Heart className="h-7 w-7 text-brand-600 fill-current" />
+                        <div className="flex items-center gap-2 cursor-pointer group" onClick={() => window.scrollTo(0, 0)}>
+                            {/* Logo SVG Customizado - Pin com Coração */}
+                            <div className="relative w-8 h-8 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                                {/* Fundo Pin Magenta */}
+                                <svg viewBox="0 0 24 24" fill="none" className="w-full h-full text-brand-600 drop-shadow-sm">
+                                    <path
+                                        d="M12 2C7.58172 2 4 5.58172 4 10C4 14.4183 12 22 12 22C12 22 20 14.4183 20 10C20 5.58172 16.4183 2 12 2Z"
+                                        fill="currentColor"
+                                    />
+                                    {/* Coração Vazado (Branco) */}
+                                    <path
+                                        d="M12 6.5C10.5 5 8.5 5 7.5 6C6.5 7 6.5 9 8 10.5L12 14.5L16 10.5C17.5 9 17.5 7 16.5 6C15.5 5 13.5 5 12 6.5Z"
+                                        fill="white"
+                                    />
+                                </svg>
+                            </div>
                             <span className="font-display font-bold text-2xl tracking-tight">
                                 <span className="text-brand-600">Nós</span>
-                                <span className="text-brand-900">Ai</span>
+                                <span className="text-ai">Ai</span>
                             </span>
                         </div>
 
@@ -108,69 +124,9 @@ export default function Landing() {
                         </div>
                     </div>
 
-                    {/* Hero Visual (CSS Mockup) */}
-                    <div className="relative mx-auto lg:mr-0 max-w-sm w-full">
-                        <div className="bg-white p-4 rounded-[2.5rem] shadow-2xl border-8 border-slate-900 overflow-hidden relative z-10 w-full aspect-[9/18]">
-                            {/* Phone Notch */}
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-900 rounded-b-2xl z-20"></div>
-
-                            {/* WhatsApp Header Mock */}
-                            <div className="bg-[#075E54] -mx-4 -mt-4 p-4 pt-8 text-white flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                                    <Heart className="w-6 h-6 text-white fill-current" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-sm">NósAi & Casal</h3>
-                                    <p className="text-[10px] opacity-80">Online agora</p>
-                                </div>
-                            </div>
-
-                            {/* Chat Area */}
-                            <div className="flex flex-col gap-4 mt-4 h-full pb-20 text-xs sm:text-sm">
-                                {/* Message 1: User A */}
-                                <div className="self-end bg-[#E7FFDB] p-3 rounded-2xl rounded-tr-none shadow-sm max-w-[85%]">
-                                    <p className="text-slate-800">Você nunca me escuta quando eu falo do meu trabalho! 😡</p>
-                                    <span className="text-[10px] text-slate-400 flex justify-end mt-1">19:42 vv</span>
-                                </div>
-
-                                {/* Message 2: User B */}
-                                <div className="self-start bg-white p-3 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] border border-slate-100">
-                                    <p className="text-slate-800">Eu escuto sim, mas você só reclama o tempo todo.</p>
-                                    <span className="text-[10px] text-slate-400 mt-1 block">19:43</span>
-                                </div>
-
-                                {/* Message 3: AI Intervention */}
-                                <div className="self-center my-4 bg-slate-100 px-3 py-1 rounded-full text-[10px] text-slate-500 font-medium">
-                                    NósAi está digitando...
-                                </div>
-
-                                <div className="self-start bg-gradient-to-br from-brand-50 to-white p-4 rounded-xl shadow-md border border-brand-100 w-full relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-brand-500"></div>
-                                    <div className="flex items-center gap-2 mb-2 text-brand-700 font-bold text-xs uppercase tracking-wider">
-                                        <Zap className="w-3 h-3" /> Mediação Ativa
-                                    </div>
-                                    <p className="text-slate-700 leading-relaxed mb-2">
-                                        Pessoal, percebo que os ânimos exaltaram.
-                                    </p>
-                                    <p className="text-slate-700 leading-relaxed">
-                                        <strong>@João</strong>, quando a <strong>@Maria</strong> fala sobre o trabalho, ela pode estar buscando <em>acolhimento</em>, não soluções. Que tal tentarmos ouvir sem julgar por 5 minutos? 🌱
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Decorative Elements behind phone */}
-                        <div className="absolute top-10 -right-10 bg-white p-4 rounded-2xl shadow-xl z-20 animate-bounce delay-700 hidden lg:block">
-                            <div className="flex items-center gap-3">
-                                <div className="bg-green-100 p-2 rounded-full">
-                                    <Check className="w-5 h-5 text-green-600" />
-                                </div>
-                                <div>
-                                    <p className="font-bold text-slate-900 text-sm">Conflito Evitado</p>
-                                    <p className="text-xs text-slate-500">Há 2 min</p>
-                                </div>
-                            </div>
-                        </div>
+                    {/* Hero Visual (Animations) */}
+                    <div className="relative mx-auto lg:mr-0 max-w-lg w-full">
+                        <CoupleHeroAnimation />
                     </div>
                 </div>
             </section>
@@ -178,16 +134,41 @@ export default function Landing() {
             {/* --- SOCIAL PROOF --- */}
             <section className="py-10 bg-white border-y border-slate-100">
                 <div className="max-w-7xl mx-auto px-4 text-center">
-                    <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-6">
-                        Tecnologia usada para fortalecer milhares de famílias
+                    <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-8">
+                        Tecnologia de ponta para garantir um espaço seguro de diálogo
                     </p>
-                    <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-                        {/* Fake generic logos for "Tech/Press" appearance */}
-                        {['OpenAI', 'WhatsApp Business', 'Google Cloud', 'Stripe Secure'].map((brand) => (
-                            <span key={brand} className="text-xl font-bold text-slate-400 flex items-center gap-2">
-                                <div className="w-6 h-6 bg-slate-200 rounded-md"></div> {brand}
-                            </span>
-                        ))}
+                    <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
+                        {/* Google Gemini */}
+                        <div className="flex items-center gap-2 text-slate-400 font-bold text-lg hover:text-[#4285F4] transition-colors duration-300 cursor-default">
+                            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C11.5 6.5 8 10 3.5 10.5C8 11 11.5 14.5 12 19C12.5 14.5 16 11 20.5 10.5C16 10 12.5 6.5 12 2Z" />
+                            </svg>
+                            <span>Google Gemini AI</span>
+                        </div>
+
+                        {/* WhatsApp */}
+                        <div className="flex items-center gap-2 text-slate-400 font-bold text-lg hover:text-[#25D366] transition-colors duration-300 cursor-default">
+                            <div className="bg-current p-0.5 rounded-full">
+                                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                                </svg>
+                            </div>
+                            <span>WhatsApp</span>
+                        </div>
+
+                        {/* Google Cloud */}
+                        <div className="flex items-center gap-2 text-slate-400 font-bold text-lg hover:text-[#DB4437] transition-colors duration-300 cursor-default">
+                            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+                            </svg>
+                            <span>Google Cloud</span>
+                        </div>
+
+                        {/* Security */}
+                        <div className="flex items-center gap-2 text-slate-400 font-bold text-lg hover:text-brand-600 transition-colors duration-300 cursor-default">
+                            <Shield className="w-6 h-6" />
+                            <span>Criptografia SSL</span>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -203,7 +184,55 @@ export default function Landing() {
                     </div>
 
                     {/* Componente Interativo Accordion */}
+                    {/* Componente Interativo Accordion */}
                     <HowItWorksAccordion />
+
+                    <div className="mt-24 bg-white rounded-3xl p-8 md:p-12 border border-slate-100 shadow-xl overflow-hidden relative">
+                        {/* Background Decorations */}
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                        <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-50 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+
+                        <div className="grid md:grid-cols-2 gap-12 items-center relative z-10">
+                            {/* Left: Content */}
+                            <div className="text-left">
+                                <div className="inline-block bg-brand-100 p-3 rounded-2xl mb-6 shadow-sm">
+                                    <MessageCircle className="w-8 h-8 text-brand-600" />
+                                </div>
+                                <h3 className="text-3xl md:text-3xl font-bold text-slate-900 mb-6 leading-tight">
+                                    Mediação em Tempo Real <br />
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-purple-600">Direto no WhatsApp</span>
+                                </h3>
+                                <p className="text-slate-600 mb-8 text-lg leading-relaxed">
+                                    Veja como o NósAi intervém de forma gentil e imparcial quando os ânimos se exaltam, sugerindo pausas e reformulando frases tóxicas.
+                                </p>
+
+                                <ul className="space-y-4 mb-8">
+                                    {[
+                                        'Sem aplicativos extras para baixar',
+                                        'Privacidade total via Criptografia',
+                                        'Disponível 24/7 para o casal'
+                                    ].map(item => (
+                                        <li key={item} className="flex items-center gap-3">
+                                            <div className="bg-green-100 p-1 rounded-full">
+                                                <Check className="w-4 h-4 text-green-600" />
+                                            </div>
+                                            <span className="text-slate-700 font-medium">{item}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+
+                                <Link to="/register" className="inline-flex items-center justify-center w-full sm:w-auto px-8 py-3 bg-brand-600 text-white rounded-xl font-bold hover:bg-brand-700 transition-colors shadow-lg shadow-brand-500/20 group">
+                                    Experimentar Agora
+                                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                </Link>
+                            </div>
+
+                            {/* Right: Phone */}
+                            <div className="flex justify-center transform md:rotate-1 hover:rotate-0 transition-transform duration-500">
+                                <PhoneMockup />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -322,11 +351,23 @@ export default function Landing() {
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-8">
                         <div>
-                            <div className="flex items-center gap-2 mb-4">
-                                <Heart className="h-6 w-6 text-brand-600 fill-current" />
+                            <div className="flex items-center gap-2 mb-4 group">
+                                {/* Logo SVG Customizado Footer */}
+                                <div className="relative w-6 h-6 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                                    <svg viewBox="0 0 24 24" fill="none" className="w-full h-full text-brand-600 drop-shadow-sm">
+                                        <path
+                                            d="M12 2C7.58172 2 4 5.58172 4 10C4 14.4183 12 22 12 22C12 22 20 14.4183 20 10C20 5.58172 16.4183 2 12 2Z"
+                                            fill="currentColor"
+                                        />
+                                        <path
+                                            d="M12 6.5C10.5 5 8.5 5 7.5 6C6.5 7 6.5 9 8 10.5L12 14.5L16 10.5C17.5 9 17.5 7 16.5 6C15.5 5 13.5 5 12 6.5Z"
+                                            fill="white"
+                                        />
+                                    </svg>
+                                </div>
                                 <span className="font-display font-bold text-xl">
                                     <span className="text-brand-600">Nós</span>
-                                    <span className="text-brand-900">Ai</span>
+                                    <span className="text-ai">Ai</span>
                                 </span>
                             </div>
                             <p className="text-slate-500 text-sm max-w-xs">

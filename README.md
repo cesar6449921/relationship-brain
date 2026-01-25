@@ -1,161 +1,114 @@
-# 💑 NósAi - Mediador de Casais Inteligente
+# 💑 NósAi 2.0 - Mediação Inteligente de Relacionamentos
 
-Bot de WhatsApp especializado em mediação de casais, utilizando Gemini 2.0 Flash para oferecer suporte empático e profissional.
+> **Tecnologia de ponta para garantir um espaço seguro de diálogo.**
 
-## 🎯 Funcionalidades
-
-- ✅ **Mediação de Casais Automatizada**: Respostas empáticas baseadas em 15 anos de experiência simulada
-- ✅ **Memória de Contexto**: Lembra das últimas 20 mensagens de cada conversa
-- ✅ **IA de Última Geração**: Powered by Google Gemini 2.0 Flash Experimental
-- ✅ **Integração WhatsApp**: Via Evolution API
-- ✅ **Logs Estruturados**: Monitoramento completo em JSON
-- ✅ **Deploy Automatizado**: Gerenciado via EasyPanel
-
-## 📁 Estrutura do Projeto
-
-```
-relationship-brain/
-├── src/                      # Código fonte principal
-│   ├── main.py              # FastAPI app e webhook handler
-│   ├── services.py          # Integração com Gemini e Evolution API
-│   ├── memory.py            # Sistema de memória de contexto
-│   ├── logging_config.py    # Configuração de logs estruturados
-│   ├── requirements.txt     # Dependências Python
-│   ├── Dockerfile           # Dockerfile para desenvolvimento
-│   └── Dockerfile.prod      # Dockerfile para produção
-├── scripts/                  # Scripts utilitários
-│   └── setup_webhook.py     # Configuração inicial do webhook
-├── .env.example             # Template de variáveis de ambiente
-├── .gitignore              # Arquivos ignorados pelo Git
-├── deploy.sh               # Script de deploy
-├── docker-compose.yml      # Configuração Docker Compose
-├── DEPLOY.md              # Documentação de deploy
-└── README.md              # Este arquivo
-
-```
-
-## 🚀 Quick Start
-
-### Pré-requisitos
-
-- Python 3.10+
-- Docker (opcional)
-- Conta Google Cloud com API Key do Gemini
-- Instância da Evolution API
-
-### Instalação Local
-
-1. **Clone o repositório**
-```bash
-git clone https://github.com/cesar6449921/relationship-brain.git
-cd relationship-brain
-```
-
-2. **Configure as variáveis de ambiente**
-```bash
-cp .env.example .env
-# Edite o .env com suas credenciais
-```
-
-3. **Instale as dependências**
-```bash
-cd src
-python -m venv venv
-source venv/bin/activate  # No Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-4. **Execute o bot**
-```bash
-uvicorn main:app --reload
-```
-
-### Deploy com Docker
-
-```bash
-docker-compose up -d
-```
-
-### Deploy em Produção (EasyPanel)
-
-Veja [DEPLOY.md](DEPLOY.md) para instruções detalhadas.
-
-## ⚙️ Configuração
-
-### Variáveis de Ambiente
-
-```env
-# Google Gemini
-GOOGLE_API_KEY=sua_chave_aqui
-MODEL_NAME=gemini-2.0-flash-exp
-
-# Evolution API
-EVOLUTION_URL=http://evolution-api:8080
-EVOLUTION_API_KEY=sua_chave_evolution
-INSTANCE_NAME=nome_da_instancia
-
-# Google Cloud (opcional)
-GOOGLE_CLOUD_PROJECT=seu_projeto
-GOOGLE_CLOUD_LOCATION=us-central1
-
-# Servidor
-PORT=8000
-```
-
-## 🧠 Como Funciona
-
-1. **Recepção**: Webhook recebe mensagens da Evolution API
-2. **Contexto**: Sistema recupera histórico de conversa (últimas 20 mensagens)
-3. **Processamento**: Gemini 2.0 gera resposta empática baseada no prompt de mediador
-4. **Resposta**: Mensagem é enviada de volta via Evolution API
-5. **Memória**: Conversa é armazenada para contexto futuro
-
-## 📊 Monitoramento
-
-Os logs são estruturados em JSON para fácil análise:
-
-```json
-{
-  "event": "message_sent_success",
-  "instance": "test-bot-2",
-  "level": "info",
-  "remote_jid": "5527996449921@s.whatsapp.net",
-  "timestamp": "2026-01-21T12:34:49.027491Z"
-}
-```
-
-## 🛠️ Desenvolvimento
-
-### Estrutura de Código
-
-- **main.py**: Endpoints FastAPI e gerenciamento de webhooks
-- **services.py**: Lógica de negócio e integração com APIs
-- **memory.py**: Sistema de cache de conversas em memória
-- **logging_config.py**: Configuração de logs estruturados
-
-### Adicionando Novas Funcionalidades
-
-1. Edite o prompt em `src/services.py` (variável `SYSTEM_PROMPT`)
-2. Adicione novos endpoints em `src/main.py`
-3. Teste localmente com `uvicorn main:app --reload`
-4. Commit e push para deploy automático
-
-## 📝 Licença
-
-Este projeto é privado e proprietário.
-
-## 🤝 Contribuindo
-
-Para contribuir:
-1. Crie uma branch: `git checkout -b feature/nova-funcionalidade`
-2. Commit suas mudanças: `git commit -m 'feat: adiciona nova funcionalidade'`
-3. Push para a branch: `git push origin feature/nova-funcionalidade`
-4. Abra um Pull Request
-
-## 📞 Suporte
-
-Para dúvidas ou problemas, abra uma issue no GitHub.
+O **NósAi** é um mediador de relacionamentos baseado em Inteligência Artificial que vive dentro do WhatsApp do casal. Ele utiliza a tecnologia avançada do **Google Gemini** para moderar conversas, reformular mensagens agressivas e sugerir dinâmicas de conexão, tudo em um ambiente criptografado e seguro.
 
 ---
 
-**Desenvolvido com ❤️ usando Google Gemini 2.0 Flash**
+## 🚫 Aviso Importante (Disclaimer)
+
+**O NósAi NÃO substitui profissionais de saúde mental.**
+Esta ferramenta é um assistente de comunicação para conflitos cotidianos. Para casos de violência doméstica, abuso, crises psicológicas graves ou risco de vida, procure imediatamente ajuda profissional ou autoridades competentes (Ligue 180/190).
+
+---
+
+## 🛠️ Stack Tecnológico
+
+O projeto é construído sobre pilares de segurança e escalabilidade:
+
+- **Cérebro (IA):** Google Gemini 2.0 Flash (via Vertex AI)
+- **Interface:** WhatsApp (via Evolution API v2)
+- **Backend:** Python (FastAPI) + Google Cloud Run
+- **Frontend:** React + Vite + TailwindCSS
+- **Banco de Dados:** Supabase (PostgreSQL)
+- **Infraestrutura:** Docker + EasyPanel
+
+---
+
+## 🚀 Funcionalidades Principais
+
+- **Mediação Ativa:** Intervenção em tempo real quando o tom da conversa aquece.
+- **Reformulação de Mensagens:** Sugere formas mais empáticas de dizer a mesma coisa.
+- **Evolução Diária:** Exercícios personalizados baseados no histórico do casal.
+- **Privacidade Absoluta:** Conversas criptografadas ponta-a-ponta no WhatsApp.
+- **Dashboard Web:** Painel para gerenciamento de conta, planos e visualização de progresso.
+
+---
+
+## 📁 Estrutura do Projeto
+
+```bash
+NoisDois AI 2.0/
+├── src/                      # Backend (Python/FastAPI)
+│   ├── main.py              # API Gateway & Webhooks
+│   ├── services.py          # Lógica de IA e Integrações
+│   ├── memory.py            # Gestão de Contexto
+│   └── ...
+├── frontend/                 # Frontend (React/Vite)
+│   ├── src/                 # Componentes e Páginas
+│   │   ├── components/      # SVGs Animados e UI Kits
+│   │   ├── pages/           # Landing, Login, Dashboard
+│   │   └── ...
+│   └── ...
+├── .agent/                   # Documentação do Agente AI
+└── ...
+```
+
+---
+
+## ⚡ Quick Start (Rodando Localmente)
+
+### Pré-requisitos
+- Python 3.10+
+- Node.js 18+
+- Instância Evolution API configurada
+- Chave de API do Google Gemini
+
+### 1. Backend (API)
+
+```bash
+# Clone e entre na pasta
+git clone https://github.com/cesar6449921/relationship-brain.git
+cd "NoisDois AI 2.0"
+
+# Instale dependências
+pip install -r src/requirements.txt
+
+# Configure .env (copie do examplo)
+cp .env.example .env
+
+# Rode o servidor
+python -m uvicorn src.main:app --reload
+# Backend rodando em: http://127.0.0.1:8000
+```
+
+### 2. Frontend (Site)
+
+```bash
+# Em outro terminal, entre na pasta frontend
+cd frontend
+
+# Instale dependências
+npm install
+
+# Rode o servidor de dev
+npm run dev
+# Frontend rodando em: http://localhost:5173
+```
+
+---
+
+## 🔐 Privacidade e Segurança
+
+Levamos a segurança a sério.
+- **LGPD/GDPR:** Todo usuário deve dar consentimento explícito antes de usar.
+- **Isolamento:** Cada casal tem um ID único e isolado.
+- **Dados:** Não vendemos dados para terceiros. O histórico é usado apenas para a memória da IA do próprio casal.
+
+---
+
+## 📄 Licença
+
+Proprietário e Privado. Todos os direitos reservados à NósAi Tecnologia.
+Desenvolvido com ❤️ e **Google Gemini**.

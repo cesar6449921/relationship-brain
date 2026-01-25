@@ -19,6 +19,7 @@ export default {
                     800: '#991550',
                     900: '#2A0F2E', // ROXO PROFUNDO (DARK)
                 },
+                ai: '#8B5CF6', // Roxo Vibrante
                 accent: {
                     green: '#C8F7C5', // Verde Fundo
                     lavender: '#F3E5F5', // Lavanda Suave

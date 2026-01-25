@@ -7,8 +7,17 @@ export default function Terms() {
         <div className="min-h-screen bg-slate-50">
             {/* Header Simples */}
             <nav className="bg-white border-b border-slate-200 px-6 h-16 flex items-center justify-between">
-                <Link to="/" className="flex items-center gap-2 text-brand-600 font-bold text-xl">
-                    <span>NósAi</span>
+                <Link to="/" className="flex items-center gap-2 group">
+                    <div className="relative w-8 h-8 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                        <svg viewBox="0 0 24 24" fill="none" className="w-full h-full text-brand-600 drop-shadow-sm">
+                            <path d="M12 2C7.58172 2 4 5.58172 4 10C4 14.4183 12 22 12 22C12 22 20 14.4183 20 10C20 5.58172 16.4183 2 12 2Z" fill="currentColor" />
+                            <path d="M12 6.5C10.5 5 8.5 5 7.5 6C6.5 7 6.5 9 8 10.5L12 14.5L16 10.5C17.5 9 17.5 7 16.5 6C15.5 5 13.5 5 12 6.5Z" fill="white" />
+                        </svg>
+                    </div>
+                    <span className="font-bold text-xl">
+                        <span className="text-brand-600">Nós</span>
+                        <span className="text-ai">Ai</span>
+                    </span>
                 </Link>
                 <Link to="/" className="text-slate-500 hover:text-slate-800 flex items-center gap-2 text-sm font-medium">
                     <ArrowLeft className="h-4 w-4" /> Voltar
